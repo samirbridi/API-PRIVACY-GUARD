@@ -3,6 +3,7 @@
 Pattern matching is not complete DLP. It cannot guarantee no confidential data leaks.
 """
 import re
+import urllib.parse
 from .config import GuardError
 
 PATTERNS = {
@@ -45,3 +46,38 @@ def check_for_model(data: bytes, max_size: int) -> str:
     if matches:
         raise GuardError("Saída bloqueada por indício de segredo: " + ", ".join(matches))
     return decoded
+
+
+def check_outbound_api_data(path: str, body: bytes | None, local_token: str) -> None:
+    """Best-effort DLP for model-controlled API request data.
+
+    The broker-inserted Authorization header is intentionally *not* scanned:
+    it is required for authentication at the explicitly configured destination.
+    This gate only screens agent-controlled URL and JSON body data.
+    """
+    parsed = urllib.parse.urlsplit(path)
+    candidate_path = parsed.path
+    for _ in range(3):
+        if secret_categories(candidate_path) or (local_token and local_token in candidate_path):
+            raise GuardError("Bloqueio preventivo: informação sensível no caminho HTTP.")
+        candidate_path = urllib.parse.unquote(candidate_path)
+    if parsed.query:
+        try:
+            params = urllib.parse.parse_qsl(
+                parsed.query, keep_blank_values=True, max_num_fields=128
+            )
+        except (ValueError, UnicodeError):
+            raise GuardError("Consulta HTTP inválida ou excessivamente grande.") from None
+        for key, value in params:
+            for _ in range(3):
+                candidate = f"{key}={value}"
+                if secret_categories(candidate) or (local_token and local_token in candidate):
+                    raise GuardError("Bloqueio preventivo: informação sensível na consulta HTTP.")
+                key, value = urllib.parse.unquote_plus(key), urllib.parse.unquote_plus(value)
+    if body is not None:
+        try:
+            content = body.decode("utf-8", "strict")
+        except UnicodeError:
+            raise GuardError("Corpo HTTP não UTF-8.") from None
+        if secret_categories(content) or (local_token and local_token in content):
+            raise GuardError("Bloqueio preventivo: informação sensível no corpo HTTP.")

@@ -21,12 +21,16 @@ This software is **experimental**. It is **not** a full sandbox, endpoint DLP, n
 python -m venv .venv
 python -m pip install -e ".[test]"
 python -m pytest -q
-python -m mizin_guard.cli init
+python -m api_privacy_guard.cli init
 ```
 
-Both demo profiles start disabled. The MCP server is run with `python -m mizin_guard.mcp_server` after validating the IDE's MCP integration.
+Both demo profiles start disabled. The MCP server is run with `python -m api_privacy_guard.mcp_server` after validating the IDE's MCP integration.
 
 See [the Portuguese README](README.md), [security policy](SECURITY.md), [threat model](THREAT_MODEL.md), [roadmap](ROADMAP.md), and [contributing guide](CONTRIBUTING.md).
+
+## Upgrading an earlier installation
+
+The rename also changes the local configuration directory, keyring service, Python package and MCP server identifier. Previous profiles and tokens are **not automatically migrated**. Back up local policy files privately, update IDE MCP paths, and re-register tokens using the local CLI. Never paste secrets into your AI chat.
 
 ## License
 

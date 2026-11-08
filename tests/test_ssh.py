@@ -1,7 +1,7 @@
 import subprocess
 import pytest
-from mizin_guard.config import GuardError
-from mizin_guard.sshbroker import run_ssh, validate_path, ssh_command
+from api_privacy_guard.config import GuardError
+from api_privacy_guard.sshbroker import run_ssh, validate_path, ssh_command
 
 CFG = {
     "schema_version": 1,
@@ -34,7 +34,7 @@ def test_read_output(monkeypatch):
     def mock_run(cmd, **kwargs):
         calls.append((cmd, kwargs))
         return subprocess.CompletedProcess(cmd, 0, stdout=b"def foo(): return 1\n", stderr=b"")
-    monkeypatch.setattr("mizin_guard.sshbroker.subprocess.run", mock_run)
+    monkeypatch.setattr("api_privacy_guard.sshbroker.subprocess.run", mock_run)
     result = run_ssh(CFG, "machine", "read", path="/srv/project/a.py")
     assert "def foo" in result
     assert "ssh" == calls[0][0][0]
@@ -45,7 +45,7 @@ def test_write_uses_stdin_not_command_or_logs(monkeypatch):
     def mock_run(cmd, **kwargs):
         calls.append((cmd, kwargs))
         return subprocess.CompletedProcess(cmd, 0, stdout=b"OK", stderr=b"")
-    monkeypatch.setattr("mizin_guard.sshbroker.subprocess.run", mock_run)
+    monkeypatch.setattr("api_privacy_guard.sshbroker.subprocess.run", mock_run)
     payload = "print('local-only-test-payload-123')"
     result = run_ssh(CFG, "machine", "write", path="/srv/project/a.py", data=payload)
     assert "atualizado" in result
@@ -56,7 +56,7 @@ def test_write_uses_stdin_not_command_or_logs(monkeypatch):
 def test_ssh_model_cannot_run_unregistered_command(monkeypatch):
     def forbidden(*a, **kw):
         raise AssertionError("SSH must not start")
-    monkeypatch.setattr("mizin_guard.sshbroker.subprocess.run", forbidden)
+    monkeypatch.setattr("api_privacy_guard.sshbroker.subprocess.run", forbidden)
     with pytest.raises(GuardError):
         run_ssh(CFG, "machine", "task", task="cat /etc/shadow")
 
@@ -64,6 +64,6 @@ def test_ssh_model_cannot_run_unregistered_command(monkeypatch):
 def test_secret_in_ssh_output_not_returned(monkeypatch):
     def mock_run(cmd, **kwargs):
         return subprocess.CompletedProcess(cmd, 0, stdout=b"password=superSecretValue", stderr=b"")
-    monkeypatch.setattr("mizin_guard.sshbroker.subprocess.run", mock_run)
+    monkeypatch.setattr("api_privacy_guard.sshbroker.subprocess.run", mock_run)
     with pytest.raises(GuardError):
         run_ssh(CFG, "machine", "read", path="/srv/project/a.txt")

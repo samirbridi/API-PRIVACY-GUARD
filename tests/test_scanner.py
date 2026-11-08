@@ -1,6 +1,6 @@
 import pytest
-from mizin_guard.config import GuardError
-from mizin_guard.scanner import check_for_model, forbidden_path, secret_categories
+from api_privacy_guard.config import GuardError
+from api_privacy_guard.scanner import check_for_model, forbidden_path, secret_categories
 
 @pytest.mark.parametrize("content", [
     b"password=superSecretValue",

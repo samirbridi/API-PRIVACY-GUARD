@@ -1,10 +1,10 @@
-# Prompt mestre para integrar e evoluir MIZIN PRIVACY GUARD
+# Prompt mestre para integrar e evoluir API PRIVACY GUARD
 
 Use este texto com a sua IDE de programação **após** abrir a pasta do repositório e revisar o conteúdo. Não forneça senhas/tokens no prompt.
 
 ---
 
-Você atuará como engenheiro de segurança e software no projeto **MIZIN PRIVACY GUARD**.
+Você atuará como engenheiro de segurança e software no projeto **API PRIVACY GUARD**.
 
 ## Meta principal
 

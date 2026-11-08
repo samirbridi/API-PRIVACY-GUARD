@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mizin-privacy-guard"
+name = "api-privacy-guard"
 version = "0.1.0"
 description = "Local access broker for AI coding agents: MCP, SSH and scoped API tokens"
 requires-python = ">=3.11"
@@ -13,10 +13,10 @@ dependencies = ["mcp>=2.0,<3", "keyring>=25,<27"]
 test = ["pytest>=8,<10"]
 
 [project.scripts]
-mizin-guard = "mizin_guard.cli:main"
+api-privacy-guard = "api_privacy_guard.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["mizin_guard*"]
+include = ["api_privacy_guard*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

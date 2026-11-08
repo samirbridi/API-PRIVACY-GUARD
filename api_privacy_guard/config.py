@@ -10,11 +10,11 @@ class GuardError(Exception):
 
 
 def config_path() -> Path:
-    override = os.environ.get("MIZIN_GUARD_CONFIG")
+    override = os.environ.get("API_PRIVACY_GUARD_CONFIG")
     if override:
         return Path(override).expanduser().resolve()
     base = os.getenv("LOCALAPPDATA") if os.name == "nt" else os.getenv("XDG_CONFIG_HOME")
-    return Path(base).expanduser() / "MizinPrivacyGuard" / "config.json" if base else Path.home() / ".config" / "MizinPrivacyGuard" / "config.json"
+    return Path(base).expanduser() / "APIPrivacyGuard" / "config.json" if base else Path.home() / ".config" / "APIPrivacyGuard" / "config.json"
 
 
 EXAMPLE = {
@@ -67,7 +67,7 @@ def load(path: Path | None = None) -> dict:
         with path.open("r", encoding="utf-8") as fp:
             cfg = json.load(fp)
     except FileNotFoundError:
-        raise GuardError("Configuração não encontrada. Execute 'mizin-guard init'.") from None
+        raise GuardError("Configuração não encontrada. Execute 'api-privacy-guard init'.") from None
     except (ValueError, OSError):
         raise GuardError("Não foi possível ler a configuração JSON.") from None
     if not isinstance(cfg, dict) or cfg.get("schema_version") != 1:

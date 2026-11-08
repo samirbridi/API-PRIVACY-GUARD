@@ -9,7 +9,7 @@ from .config import GuardError, load
 from .sshbroker import run_ssh
 from .apibroker import api_call
 
-mcp = MCPServer("MIZIN Privacy Guard - local protected executor")
+mcp = MCPServer("API Privacy Guard - local protected executor")
 
 
 def report(call):

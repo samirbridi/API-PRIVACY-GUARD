@@ -1,41 +1,32 @@
-# Publicação inicial no GitHub
+# Repositório e colaboração no GitHub
 
-Conta prevista: `samirbridi`
-Repositório proposto: `mizin-privacy-guard`
-Visibilidade: `Public` (somente após revisão do código)
-Branch padrão: `main`
-Licença proposta: Apache-2.0
+Repositório oficial: **[samirbridi/API-PRIVACY-GUARD](https://github.com/samirbridi/API-PRIVACY-GUARD)**  
+Branch principal: `main`  
+Licença: Apache-2.0  
+Situação: protótipo experimental v0.1; **não usar como único mecanismo de proteção de dados**.
 
-## 1. Crie o repositório vazio
-
-Acesse https://github.com/new e configure:
-- **Repository name:** `mizin-privacy-guard`
-- **Description:** `Local-first security broker for AI coding agents | SSH, scoped APIs, MCP and secret protection`
-- **Public**
-- **NÃO** selecione README, .gitignore ou LICENSE no formulário (já estão neste pacote).
-
-## 2. Faça o primeiro push (PowerShell)
-
-Descompacte o pacote e abra o terminal dentro da pasta:
+## Trabalhar com o projeto
 
 ```powershell
-git init -b main
-git add .
-git status
-git commit -m "chore: initial open-source MVP v0.1"
-git remote add origin https://github.com/samirbridi/mizin-privacy-guard.git
-git push -u origin main
+git clone https://github.com/samirbridi/API-PRIVACY-GUARD.git
+cd API-PRIVACY-GUARD
+py -3 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[test]"
+.\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Antes de `git commit`, revise `git status` e o conteúdo de cada arquivo. Não inclua `.env`, `config.json` real, `audit.jsonl`, chaves, senhas ou logs.
+As ferramentas MCP usam `python -m api_privacy_guard.mcp_server`. Consulte [README.md](README.md) e [SECURITY.md](SECURITY.md) antes de conceder permissões.
 
-Se o repositório já existir com commits, NÃO force push: faça backup e reconcilie os históricos antes de enviar.
+## Contribuir
 
-## 3. Configure segurança e colaboração
+1. Faça fork, trabalhe em branch própria e abra um Pull Request.
+2. Descreva testes, riscos e limitações observadas. Não inclua tokens, credenciais, hosts privados ou logs reais.
+3. Para falhas de segurança, **não abra Issue pública**. Use o fluxo descrito em [SECURITY.md](SECURITY.md).
+4. Antes de aceitar PRs, é recomendável proteger `main` com revisão e verificações automáticas.
 
-- Settings → General → Features: habilite Issues e Discussions (se disponível).
-- Settings → Branches / Rulesets: PR obrigatório para `main`, revisão do mantenedor, testes obrigatórios, impedir force-push.
-- Settings → Security & analysis: habilite Dependabot, secret scanning e push protection (conforme disponibilidade do plano).
-- Security → Advisories: habilite private vulnerability reporting (se disponível).
-- Convide colaboradores somente com a permissão necessária; prefira PRs de forks para contribuições abertas.
-- Revise a escolha da licença com seu objetivo de distribuição antes de publicar.
+## Recomendações aos mantenedores
+
+- Settings → General: habilitar Issues/Discussions, conforme interesse.
+- Settings → Branches/Rulesets: exigir PR, revisão de código e verificações de CI; impedir force-push.
+- Settings → Security: avaliar secret scanning, push protection, Dependabot e private vulnerability reporting.
+- Criar perfis de acesso de escopo mínimo para colaboradores e serviços automatizados.

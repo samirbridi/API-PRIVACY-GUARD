@@ -1,6 +1,6 @@
 # Como contribuir / Contributing
 
-Obrigado por ajudar a fortalecer o **MIZIN PRIVACY GUARD**.
+Obrigado por ajudar a fortalecer o **API PRIVACY GUARD**.
 
 ## Desenvolvimento
 

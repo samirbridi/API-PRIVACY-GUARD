@@ -9,7 +9,7 @@ from .config import GuardError, config_path, initialize, load
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(prog="mizin-guard", description="MIZIN Privacy Guard - administração local")
+    parser = argparse.ArgumentParser(prog="api-privacy-guard", description="API Privacy Guard - administração local")
     sp = parser.add_subparsers(dest="command", required=True)
     sp.add_parser("init", help="Criar configuração desabilitada por padrão")
     sp.add_parser("status", help="Listar perfis e status (sem credenciais)")
@@ -36,10 +36,10 @@ def main() -> None:
                 secret = getpass.getpass("Digite o token (não será exibido): ")
                 if not secret:
                     raise GuardError("Não foi fornecido token.")
-                keyring.set_password("MizinPrivacyGuard", args.name, secret)
+                keyring.set_password("APIPrivacyGuard", args.name, secret)
                 print("Credencial armazenada no cofre local do usuário.")
             else:
-                keyring.delete_password("MizinPrivacyGuard", args.name)
+                keyring.delete_password("APIPrivacyGuard", args.name)
                 print("Credencial excluída do cofre local do usuário.")
     except (GuardError, ImportError) as exc:
         print(f"ERRO: {exc}", file=sys.stderr)

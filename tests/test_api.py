@@ -1,6 +1,6 @@
 import pytest
-from mizin_guard.config import GuardError
-from mizin_guard.apibroker import api_location, api_call
+from api_privacy_guard.config import GuardError
+from api_privacy_guard.apibroker import api_location, api_call
 
 CFG = {
  "schema_version": 1, "ssh_targets": {},
@@ -25,7 +25,7 @@ def test_api_scope_method():
 
 
 def test_api_token_used_only_on_local_http_request(monkeypatch):
-    monkeypatch.setattr("mizin_guard.apibroker._get_token", lambda name: "FAKE-SECRET-TOKEN-123")
+    monkeypatch.setattr("api_privacy_guard.apibroker._get_token", lambda name: "FAKE-SECRET-TOKEN-123")
     observed = []
     class Reply:
         status = 200
@@ -36,7 +36,7 @@ def test_api_token_used_only_on_local_http_request(monkeypatch):
         def open(self, request, timeout):
             observed.append(request)
             return Reply()
-    monkeypatch.setattr("mizin_guard.apibroker.urllib.request.build_opener", lambda *args: Opener())
+    monkeypatch.setattr("api_privacy_guard.apibroker.urllib.request.build_opener", lambda *args: Opener())
     output = api_call(CFG, "test", "GET", "/status")
     assert "ok" in output
     assert "FAKE-SECRET-TOKEN-123" not in output
@@ -44,7 +44,7 @@ def test_api_token_used_only_on_local_http_request(monkeypatch):
 
 
 def test_api_reject_secret_response(monkeypatch):
-    monkeypatch.setattr("mizin_guard.apibroker._get_token", lambda name: "FAKE-SECRET-TOKEN-123")
+    monkeypatch.setattr("api_privacy_guard.apibroker._get_token", lambda name: "FAKE-SECRET-TOKEN-123")
     class Reply:
         status=200
         def __enter__(self): return self
@@ -52,5 +52,5 @@ def test_api_reject_secret_response(monkeypatch):
         def read(self, n): return b"password=superSecretValue"
     class Opener:
         def open(self, req, timeout): return Reply()
-    monkeypatch.setattr("mizin_guard.apibroker.urllib.request.build_opener", lambda *args: Opener())
+    monkeypatch.setattr("api_privacy_guard.apibroker.urllib.request.build_opener", lambda *args: Opener())
     with pytest.raises(GuardError): api_call(CFG, "test", "GET", "/status")

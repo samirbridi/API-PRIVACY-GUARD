@@ -1,4 +1,4 @@
-# MIZIN PRIVACY GUARD — MVP v0.1
+# API PRIVACY GUARD — MVP v0.1
 
 **Executor local de acesso protegido para agentes de programação.** Primeira entrega: perfis SSH, requisições HTTPS autenticadas, cofre local de tokens, scanner simples de segredos, auditoria somente de metadados e integração MCP local via `stdio`.
 
@@ -24,12 +24,12 @@ No PowerShell, dentro da pasta descompactada:
 py -3 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -e ".[test]"
-.\.venv\Scripts\python.exe -m mizin_guard.cli init
-.\.venv\Scripts\python.exe -m mizin_guard.cli status
+.\.venv\Scripts\python.exe -m api_privacy_guard.cli init
+.\.venv\Scripts\python.exe -m api_privacy_guard.cli status
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-A configuração será criada em `%LOCALAPPDATA%\MizinPrivacyGuard\config.json`.
+A configuração será criada em `%LOCALAPPDATA%\APIPrivacyGuard\config.json`.
 
 **Por segurança, ambos os exemplos começam com `"enabled": false`.** Edite `config.json`, coloque seu host, usuário, diretório autorizado, comandos pré-cadastrados e defina `enabled: true` somente depois de confirmar que o perfil corresponde a um ambiente de testes.
 
@@ -58,7 +58,7 @@ Para permitir uma nova tarefa SSH (por exemplo, reiniciar um serviço), acrescen
 No arquivo de configuração, atribua HTTPS, métodos e caminhos autorizados. Em seguida, grave o token sem passá-lo para o chat/IDE:
 
 ```powershell
-.\.venv\Scripts\python.exe -m mizin_guard.cli secret-set demo-token
+.\.venv\Scripts\python.exe -m api_privacy_guard.cli secret-set demo-token
 ```
 
 O programa pedirá o valor ocultamente. O alias `demo-token` corresponde ao campo `token_name` no perfil. O perfil suporta `auth: bearer` (cabeçalho `Authorization`) ou `auth: x-api-key`.
@@ -70,10 +70,14 @@ O programa pedirá o valor ocultamente. O alias `demo-token` corresponde ao camp
 Consulte `examples/mcp-client-config.json`. Altere o caminho do Python para o absoluto da instalação. O comando é:
 
 ```powershell
-C:\CAMINHO\MIZIN-Privacy-Guard-MVP\.venv\Scripts\python.exe -m mizin_guard.mcp_server
+C:\CAMINHO\API-PRIVACY-GUARD\.venv\Scripts\python.exe -m api_privacy_guard.mcp_server
 ```
 
 **A configuração MCP varia por IDE e versão.** O arquivo JSON é um exemplo genérico, não garantia de integração com todas as IDEs. É preciso usar o menu/configuração de servidores MCP que cada ferramenta efetivamente disponibiliza.
+
+### Atualização a partir de uma instalação anterior
+
+**A renomeação alterou também o identificador MCP, o pacote Python, o diretório de configuração e o nome do serviço usado no cofre de credenciais.** Uma instalação anterior não é migrada automaticamente. Guarde um backup local de seus perfis (nunca no GitHub), atualize o caminho e o comando MCP nas IDEs e registre novamente os tokens pelo comando `secret-set`. Não cole senhas nem tokens no chat da IA.
 
 ## O que esta versão NÃO protege
 
@@ -86,7 +90,7 @@ C:\CAMINHO\MIZIN-Privacy-Guard-MVP\.venv\Scripts\python.exe -m mizin_guard.mcp_s
 
 ## Auditoria
 
-`%LOCALAPPDATA%\MizinPrivacyGuard\audit.jsonl` contém apenas data UTC, operação, alias de destino, decisão e um identificador truncado/hash do caminho. A auditoria não armazena corpo de requisições, texto remoto ou tokens. Proteger o acesso ao perfil do Windows continua necessário.
+`%LOCALAPPDATA%\APIPrivacyGuard\audit.jsonl` contém apenas data UTC, operação, alias de destino, decisão e um identificador truncado/hash do caminho. A auditoria não armazena corpo de requisições, texto remoto ou tokens. Proteger o acesso ao perfil do Windows continua necessário.
 
 ## Cenários de teste
 

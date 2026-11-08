@@ -11,9 +11,9 @@ if (-not (Test-Path '.venv\Scripts\python.exe')) {
 }
 & '.\.venv\Scripts\python.exe' -m pip install -e '.[test]'
 if ($LASTEXITCODE -ne 0) { throw 'Falha ao instalar dependencias.' }
-$configPath = Join-Path $env:LOCALAPPDATA 'MizinPrivacyGuard\config.json'
+$configPath = Join-Path $env:LOCALAPPDATA 'APIPrivacyGuard\config.json'
 if (-not (Test-Path $configPath)) {
-    & '.\.venv\Scripts\python.exe' -m mizin_guard.cli init
+    & '.\.venv\Scripts\python.exe' -m api_privacy_guard.cli init
     if ($LASTEXITCODE -ne 0) { throw 'Falha ao criar configuracao.' }
 } else {
     Write-Host 'Configuracao existente preservada.'

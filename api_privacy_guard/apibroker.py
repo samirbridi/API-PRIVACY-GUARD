@@ -16,7 +16,7 @@ def _get_token(name: str) -> str:
         raise GuardError("Nome da credencial inválido.")
     try:
         import keyring
-        token = keyring.get_password("MizinPrivacyGuard", name)
+        token = keyring.get_password("APIPrivacyGuard", name)
     except Exception:
         raise GuardError("Cofre do sistema indisponível; operação não autorizada.") from None
     if not token:
@@ -87,7 +87,7 @@ def api_call(cfg: dict, name: str, method: str, path: str, body_json: str = "") 
         raise GuardError("Tipo de autenticação não suportado.")
     token = _get_token(svc.get("token_name", ""))
     headers = {"Accept": "application/json", "Content-Type": "application/json",
-               "User-Agent": "MizinPrivacyGuard/0.1"}
+               "User-Agent": "APIPrivacyGuard/0.1"}
     if auth == "bearer":
         headers["Authorization"] = "Bearer " + token
     else:

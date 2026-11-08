@@ -38,3 +38,7 @@ Um agente de programação autorizado deve poder solicitar tarefas (ler arquivos
 ## Filosofia
 
 Negar por padrão aquilo que o broker não está autorizado a fazer, não capturar segredos em logs e manter a autenticação o mais próxima possível do executor local.
+
+## Inspeção de dados de saída (experimental)
+
+O broker de APIs passa a inspecionar dados controlados pelo agente no caminho, query e corpo JSON **antes** da transmissão. Isso não substitui isolamento de processos nem cobre conexões diretas fora do broker. Veja `docs/SECURITY-RESEARCH-2026-11-08.md`.

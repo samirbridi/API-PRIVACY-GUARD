@@ -22,3 +22,7 @@
 ## Temas para colaboradores
 
 Contribuições que melhorem o modelo de ameaças, mecanismos de isolamento, autorização, observabilidade e testes de segurança são especialmente bem-vindas.
+
+## Revisão de segurança (novembro de 2026)
+
+Veja [`docs/SECURITY-RESEARCH-2026-11-08.md`](docs/SECURITY-RESEARCH-2026-11-08.md) para matriz de ameaças, lacunas de cobertura e prioridades P0/P1/P2. A proteção do broker MCP **não** equivale à interceptação global do tráfego dos agentes.

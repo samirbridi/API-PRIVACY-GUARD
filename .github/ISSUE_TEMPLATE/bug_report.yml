@@ -1,0 +1,28 @@
+name: Relatar bug
+description: Reportar problema funcional sem divulgar credenciais ou detalhes de exploração
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Se o problema envolver uma vulnerabilidade, NÃO abra issue pública. Consulte SECURITY.md."
+  - type: input
+    id: version
+    attributes:
+      label: Versão
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Comportamento observado e esperado
+      placeholder: "Use dados fictícios, sem segredos ou informações de servidores reais."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos de reprodução sanitizados
+    validations:
+      required: true

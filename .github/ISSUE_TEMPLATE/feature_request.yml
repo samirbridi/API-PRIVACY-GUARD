@@ -1,0 +1,16 @@
+name: Propor recurso
+description: Sugestões de integração, funcionalidade ou melhoria
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: O que gostaria de implementar?
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: Consequências para segurança e compatibilidade
+      description: "Quais permissões, fluxos de dados ou IDEs seriam afetados?"

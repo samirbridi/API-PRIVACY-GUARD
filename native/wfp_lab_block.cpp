@@ -150,21 +150,28 @@ int wmain(int argc, wchar_t** argv) {
         filter.numFilterConditions = 4;
         filter.filterCondition = condition;
 
+        UINT64 filter_id = 0;
         check(FwpmTransactionBegin0(engine.handle, 0), "FwpmTransactionBegin0");
         bool pending = true;
         try {
             check(FwpmSubLayerAdd0(engine.handle, &layer, nullptr), "FwpmSubLayerAdd0");
-            check(FwpmFilterAdd0(engine.handle, &filter, nullptr, nullptr), "FwpmFilterAdd0");
+            check(FwpmFilterAdd0(engine.handle, &filter, nullptr, &filter_id), "FwpmFilterAdd0");
+            if (filter_id == 0) throw std::runtime_error("Missing WFP runtime filter ID");
             check(FwpmTransactionCommit0(engine.handle), "FwpmTransactionCommit0");
             pending = false;
         } catch (...) {
             if (pending) FwpmTransactionAbort0(engine.handle);
             throw;
         }
+        // Ephemeral filter ID is safe to share for VM lifecycle verification.
+        // The WFP application identity blob is never printed.
+        std::wcout << L"APG_FILTER_ID=" << filter_id << std::endl;
         std::wcout << L"Temporary scoped filter installed for " << seconds << L" seconds.\n";
         Sleep(static_cast<DWORD>(seconds * 1000));
-        // Engine destructor closes the dynamic session: filter and sublayer expire.
-        std::wcout << L"Lifetime expired. Releasing dynamic WFP session.\n";
+        // Confirm successful closing, with the destructor retained as fallback.
+        check(FwpmEngineClose0(engine.handle), "FwpmEngineClose0");
+        engine.handle = nullptr;
+        std::wcout << L"APG_SESSION_CLOSED=true" << std::endl;
         return 0;
     } catch (const std::exception& exc) {
         std::cerr << "APG lab refused/failed: " << exc.what() << "\n";

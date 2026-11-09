@@ -62,3 +62,7 @@ O diagnóstico WFP consulta a identidade nativa de um executável em uma sessão
 ## Fase 3C — risco operacional em filtro WFP de laboratório
 
 O helper nativo agora contém um filtro WFP real, mas é manual e exige confirmação dupla. Ele pode interromper tráfego que coincida com o escopo exato; a limpeza depende do encerramento da sessão dinâmica e deve ser verificada em VM. O SHA-256 é conferido no planejador, não no momento da adição pelo helper, e não equivale à identidade imutável do processo. Não existe isolamento de subprocessos nem inspeção HTTPS. **Não executar em produção ou em estações de transmissão.**
+
+## Risco residual na verificação de rollback WFP
+
+O novo probe permite diferenciar a ausência de um objeto de filtro de erro de consulta WFP. Isso não comprova efeitos reais da filtragem ou cobertura de processos filhos, VPN, IPv6 e tráfego HTTPS. A confirmação de VM é declarativa, não uma verificação de isolamento. Teste vivo segue pendente.

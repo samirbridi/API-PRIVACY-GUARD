@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "source": "manual_windows_vm_lab",
+  "operator_checks": {
+    "disposable_vm": false,
+    "isolated_network": false,
+    "owned_endpoint": false,
+    "target_executable_used": false,
+    "recovery_ready": false,
+    "same_filter_id_in_probe": false
+  },
+  "normal_run": {
+    "id_line": "APG_FILTER_ID=1234",
+    "probe_during": "APG_FILTER_PRESENT=false",
+    "probe_after": "APG_FILTER_PRESENT=false",
+    "session_closed": null,
+    "helper_exit_code": 4,
+    "before": "inconclusive",
+    "during": "inconclusive",
+    "after": "inconclusive"
+  },
+  "crash_run": null
+}

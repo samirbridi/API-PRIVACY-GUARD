@@ -48,7 +48,7 @@ Adicione sua chave ao agente se necessário, com `ssh-add $env:USERPROFILE\.ssh\
 O destino SSH precisa de `python3`. As ferramentas incluídas são:
 
 - `ssh_read_file(target, absolute_path)`: retorna texto UTF-8 até o limite definido, após inspeção; bloqueia caminhos fora da raiz, segredos comuns e arquivos de credenciais.
-- `ssh_write_existing_file(target, absolute_path, content)`: substitui o conteúdo de um arquivo **já existente**, dentro da raiz permitida. Não cria nem exclui arquivos.
+- `ssh_write_existing_file(target, absolute_path, content)`: substitui o conteúdo de um arquivo **já existente**, dentro da raiz permitida. Não cria nem exclui arquivos. O executor remoto usa descritores de diretórios e `O_NOFOLLOW` para rejeitar links simbólicos (inclusive na raiz configurada e os internos) e hardlinks, evitando troca de alvos entre a validação e a abertura. Isso requer Python 3 em um servidor Unix/Linux.
 - `ssh_run_registered_task(target, task_name)`: executa somente comandos pré-cadastrados em `tasks`; não aceita comandos arbitrários elaborados pelo modelo.
 
 Para permitir uma nova tarefa SSH (por exemplo, reiniciar um serviço), acrescente manualmente uma entrada ao dicionário `tasks` do perfil. Essas tarefas são **comandos autorizados pela configuração**, portanto revise tudo que cadastrou; um comando mal configurado pode ler ou alterar outros caminhos.

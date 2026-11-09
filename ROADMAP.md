@@ -22,3 +22,7 @@
 ## Temas para colaboradores
 
 Contribuições que melhorem o modelo de ameaças, mecanismos de isolamento, autorização, observabilidade e testes de segurança são especialmente bem-vindas.
+
+## Revisão SSH — novembro de 2026
+
+Proposta de isolamento de acesso a arquivos remotos com diretórios abertos por descritores (`dir_fd`) e `O_NOFOLLOW`, rejeitando symlinks e hardlinks. A proteção ainda depende das permissões do usuário remoto e **não** substitui sandbox, isolamento da IDE ou controles globais de rede. Revisar impacto em projetos que usam symlinks antes de habilitar em produção.

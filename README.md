@@ -81,6 +81,17 @@ C:\CAMINHO\API-PRIVACY-GUARD\.venv\Scripts\python.exe -m api_privacy_guard.mcp_s
 
 **A renomeação alterou também o identificador MCP, o pacote Python, o diretório de configuração e o nome do serviço usado no cofre de credenciais.** Uma instalação anterior não é migrada automaticamente. Guarde um backup local de seus perfis (nunca no GitHub), atualize o caminho e o comando MCP nas IDEs e registre novamente os tokens pelo comando `secret-set`. Não cole senhas nem tokens no chat da IA.
 
+## Network Guard (fase de inventário — somente leitura)
+
+Um novo comando local observa conexões de uma IDE e dos seus subprocessos **sem bloquear a rede**:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e ".[network,test]"
+.\.venv\Scripts\python.exe -m api_privacy_guard.cli network-snapshot --pid 1234 --samples 5
+```
+
+Substitua 1234 pelo PID da IDE selecionada. A saída apresenta apenas metadados; endereços IP ficam ocultos por padrão (opção explícita --show-ip). O comando **não é um firewall nem comprova** que toda comunicação foi observada. Consulte [NETWORK-GUARD-PHASE1](docs/NETWORK-GUARD-PHASE1.md).
+
 ## O que esta versão NÃO protege
 
 - Chamadas diretas da IDE à API do modelo, browser incorporado, terminal próprio e outras ferramentas não mediadas pelo MCP.

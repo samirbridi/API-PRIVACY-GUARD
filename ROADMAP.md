@@ -30,3 +30,7 @@ Veja [`docs/SECURITY-RESEARCH-2026-11-08.md`](docs/SECURITY-RESEARCH-2026-11-08.
 ## Network Guard — incremento experimental, sem bloqueio
 
 Disponível para revisão: inventário local de conexões por PID e subprocessos, com IPs ocultos por padrão e **nenhuma alteração no firewall**. Isto não conclui a v0.3 nem cobre todas as rotas de tráfego das IDEs. Consulte [docs/NETWORK-GUARD-PHASE1.md](docs/NETWORK-GUARD-PHASE1.md).
+
+## Network Guard — fase 2: política simulada
+
+O comando `network-plan` compara amostras locais com regras estritas, apresenta `allow_candidate`, `block_candidate` ou `review`, e **não altera o tráfego**. A próxima etapa é desenvolver o backend WFP com identidade verificável do executável, isolamento de subprocessos e rollback testado. Veja [docs/NETWORK-GUARD-PHASE2.md](docs/NETWORK-GUARD-PHASE2.md).

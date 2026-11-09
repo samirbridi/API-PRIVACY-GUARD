@@ -41,6 +41,11 @@ def main() -> None:
     p.add_argument("--proposal", required=True, help="Proposta JSON local")
     p = sp.add_parser("wfp-native-diagnose", help="Diagnóstico WFP nativo (sem criar filtros)")
     p.add_argument("--exe", required=True, help="Caminho absoluto do executável Windows")
+    p = sp.add_parser("wfp-lab-plan", help="Preparar comando WFP de laboratório (NÃO executa)")
+    p.add_argument("--proposal", required=True, help="Arquivo JSON de uma regra IPv4")
+    p.add_argument("--helper", required=True, help="Caminho absoluto do wfp_lab_block.exe")
+    p.add_argument("--seconds", type=int, default=10, help="Duração de 5 a 30 segundos")
+    p.add_argument("--confirm-disposable-vm", action="store_true", help="Declara uso em VM descartável")
     args = parser.parse_args()
     try:
         if args.command == "init":
@@ -86,6 +91,15 @@ def main() -> None:
         elif args.command == "wfp-native-diagnose":
             from .wfp_native import diagnose
             print(json.dumps(diagnose(args.exe), ensure_ascii=False, sort_keys=True))
+        elif args.command == "wfp-lab-plan":
+            from .wfp_preflight import load as load_wfp
+            from .wfp_lab import prepare_lab_command
+            data = prepare_lab_command(
+                load_wfp(args.proposal), args.helper,
+                seconds=args.seconds,
+                vm_acknowledged=args.confirm_disposable_vm,
+            )
+            print(json.dumps(data, ensure_ascii=False, sort_keys=True))
         elif args.command in ("secret-set", "secret-delete"):
             if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", args.name):
                 raise GuardError("Alias inválido.")

@@ -30,4 +30,8 @@ jobs:
           $probeBuild = 'call "' + $devcmd + '" -no_logo -arch=x64 && cl /nologo /std:c++17 /EHsc /W4 /utf-8 native\wfp_lab_probe.cpp /Fe:%TEMP%\apg_wfp_lab_probe.exe fwpuclnt.lib'
           & cmd.exe /D /S /C $probeBuild
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $clientBuild = 'call "' + $devcmd + '" -no_logo -arch=x64 && cl /nologo /std:c++17 /EHsc /W4 /utf-8 native\wfp_lab_connect.cpp /Fe:%TEMP%\apg_wfp_lab_connect.exe ws2_32.lib'
+          & cmd.exe /D /S /C $clientBuild
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           # Neither executable is executed or uploaded as an artifact.
+          # All three executables are compiled ONLY and are not run or uploaded.

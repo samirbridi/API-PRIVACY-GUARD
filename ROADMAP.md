@@ -54,3 +54,7 @@ Consulta somente leitura por ID WFP para evidenciar presença e desaparecimento 
 ## Fase 3E — revisão offline de evidências WFP
 
 Ferramenta local e sem acesso à rede para análise de evidências manuais de filtros temporários, validação de remoção após encerramento normal e abrupto, e verificação de relatos de conectividade restaurada. Não executa WFP nem aprova uso em produção; validação em VM e revisão independente continuam obrigatórias.
+
+## Fase 3F — ambiente experimental RFC1918
+
+Helper WFP e planejador limitados a IPv4 privado RFC1918 (exige VM e rede isolada de verdade); cliente TCP dedicado para testar novas conexões sem transmitir conteúdo; CI apenas compila os executáveis. Preview público preservado como simulação. **Ainda não existe validação de bloqueio real em VM.**

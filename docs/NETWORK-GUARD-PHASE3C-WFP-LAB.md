@@ -6,7 +6,7 @@
 
 O arquivo native/wfp_lab_block.cpp cria um único filtro WFP de ação BLOCK, restrito simultaneamente a:
 - identidade WFP do executável (ALE_APP_ID);
-- um IP IPv4 remoto global;
+- um IP IPv4 remoto privado RFC1918 (rede isolada, Fase 3F);
 - uma porta remota;
 - um protocolo TCP/UDP.
 
@@ -24,7 +24,7 @@ A GitHub Action desta etapa faz SOMENTE compilação; não executa binários nem
 
 ## Planejamento sem instalar filtros
 
-1. Criar uma cópia de examples/wfp-proposal.example.json com uma regra, executável de TESTE, SHA-256, IP e porta explícitos. Mantenha mode=preview_only.
+1. Criar uma cópia de examples/wfp-lab-private.example.json com uma regra, executável de TESTE, SHA-256, IP RFC1918 e porta explícitos. Mantenha mode=preview_only. **Não use IPs públicos em testes do helper.**
 2. Somente na VM Windows, executar manualmente no PowerShell:
 
     .\.venv\Scripts\python.exe -m api_privacy_guard.cli wfp-lab-plan --proposal .\wfp-proposal.local.json --helper 'C:\Lab\APG\wfp_lab_block.exe' --seconds 10 --confirm-disposable-vm
@@ -73,3 +73,7 @@ Referências oficiais: [Microsoft FwpmFilterGetById0](https://learn.microsoft.co
 O comando preparado em `wfp-lab-plan` inclui agora `--sha256 <hash-do-executável>`. O helper rejeita hash ausente, divergente ou inválido. Usa CryptoAPI/Windows para ler o arquivo, mantém um handle de leitura restrito durante a sessão e recusa pontos de redirecionamento detectados no caminho final. Não existe alteração automática no Windows e o helper continua limitado à VM descartável. O valor do hash pode revelar a versão do executável quando compartilhado; evite publicar dados identificáveis de instalações locais.
 
 **Validação pendente:** build Windows CI e ensaios em VM. A verificação não associa criptograficamente o filtro WFP ao processo que já estiver rodando; não é atestado de assinatura, nem proteção contra administrador comprometido.
+
+## Fase 3F — destino privado e cliente de laboratório
+
+O helper foi restringido a redes privadas RFC1918; a validação do planejador aplica a mesma regra. A proposta pública `wfp-proposal.example.json` permanece exclusiva do comando `wfp-preview` (simulação) e **não é aceita pelo laboratório**. Consulte `docs/NETWORK-GUARD-PHASE3F-ISOLATED-TEST-NETWORK.md`.

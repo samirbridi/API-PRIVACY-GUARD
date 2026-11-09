@@ -24,16 +24,14 @@ static void check(DWORD rc, const char* operation) {
     if (rc) throw std::runtime_error(std::string(operation) + " WFP error " + std::to_string(rc));
 }
 
-static bool public_ipv4(UINT32 a) {
-    unsigned a8 = (a >> 24) & 255, b8 = (a >> 16) & 255;
-    // Reject private, loopback, link-local, multicast, special and documentation IPs.
-    if (a8 == 0 || a8 == 10 || a8 == 127 || a8 >= 224 ||
-        a8 == 169 || a8 == 172 && b8 >= 16 && b8 <= 31 ||
-        a8 == 192 && (b8 == 168 || b8 == 0) ||
-        a8 == 100 && b8 >= 64 && b8 <= 127 ||
-        a8 == 198 && (b8 == 18 || b8 == 19 || b8 == 51) ||
-        a8 == 203 && b8 == 0) return false;
-    return true;
+static bool lab_private_ipv4(UINT32 ip) {
+    const unsigned first = (ip >> 24) & 255;
+    const unsigned second = (ip >> 16) & 255;
+    // Only RFC1918: approved, owned, isolated host-only VM networks.
+    // A private address is NOT by itself proof that a VM is isolated.
+    return first == 10 ||
+           (first == 172 && second >= 16 && second <= 31) ||
+           (first == 192 && second == 168);
 }
 
 struct Engine {
@@ -176,8 +174,8 @@ int wmain(int argc, wchar_t** argv) {
         if (InetPtonW(AF_INET, argv[7], &addr) != 1)
             throw std::runtime_error("Numeric IPv4 only");
         UINT32 host_ip = ntohl(addr.S_un.S_addr); // WFP FWP_UINT32 requires host byte order.
-        if (!public_ipv4(host_ip))
-            throw std::runtime_error("Non-public destination refused");
+        if (!lab_private_ipv4(host_ip))
+            throw std::runtime_error("Lab helper requires RFC1918 private IPv4 destination");
         wchar_t* endp = nullptr;
         unsigned long port = std::wcstoul(argv[9], &endp, 10);
         if (!argv[9][0] || *endp || port < 1 || port > 65535)

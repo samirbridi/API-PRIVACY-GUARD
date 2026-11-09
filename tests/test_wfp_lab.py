@@ -11,7 +11,7 @@ EXE = r"C:\Lab\FakeIDE\agent.exe"
 HELPER = r"C:\Lab\APIPrivacyGuard\wfp_lab_block.exe"
 BASE = {"schema_version": 1, "mode": "preview_only", "rules": [{
     "id": "labone", "executable": EXE, "sha256": "a" * 64,
-    "protocol": "tcp", "remote_ip": "8.8.8.8", "remote_port": 443,
+    "protocol": "tcp", "remote_ip": "192.168.56.20", "remote_port": 443,
 }]}
 
 
@@ -82,10 +82,10 @@ def test_wrong_helper_denied():
                             vm_acknowledged=True, platform="win32", inspect=inspect)
 
 
-def test_private_ip_denied():
+def test_public_ip_denied_in_lab():
     p = copy.deepcopy(BASE)
-    p["rules"][0]["remote_ip"] = "192.168.1.2"
-    with pytest.raises(GuardError):
+    p["rules"][0]["remote_ip"] = "8.8.8.8"
+    with pytest.raises(GuardError, match="RFC1918"):
         plan(p)
 
 
@@ -134,7 +134,7 @@ def test_native_helper_receives_approved_sha256_pin():
     plan_data = plan()
     argv = plan_data["command_argv"]
     assert argv[4:6] == ["--sha256", "a" * 64]
-    assert argv[6:8] == ["--ip", "8.8.8.8"]
+    assert argv[6:8] == ["--ip", "192.168.56.20"]
 
 
 def test_native_hash_check_occurs_before_wfp_filter_setup():
@@ -157,3 +157,66 @@ def test_native_hash_check_occurs_before_wfp_filter_setup():
 def test_native_build_links_cryptoapi():
     workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "wfp-lab-compile.yml").read_text(encoding="utf-8")
     assert "advapi32.lib" in workflow
+
+
+@pytest.mark.parametrize("ip", ["10.20.30.40", "172.16.1.2", "172.31.254.254", "192.168.56.20"])
+def test_private_lab_destinations_are_accepted(ip):
+    p = copy.deepcopy(BASE)
+    p["rules"][0]["remote_ip"] = ip
+    assert plan(p)["command_argv"][7] == ip
+
+
+@pytest.mark.parametrize("ip", ["8.8.8.8", "1.1.1.1", "127.0.0.1", "169.254.1.2",
+                                  "100.64.1.1", "172.32.0.1", "192.0.2.1", "192.169.0.1",
+                                  "224.0.0.1", "0.0.0.0", "::1", "2001:db8::1"])
+def test_non_rfc1918_blocked_in_lab(ip):
+    p = copy.deepcopy(BASE)
+    p["rules"][0]["remote_ip"] = ip
+    with pytest.raises(GuardError):
+        plan(p)
+
+
+def test_lab_private_json_requires_explicit_validation(tmp_path):
+    import json
+    from api_privacy_guard.wfp_preflight import load
+    p = tmp_path / "private-proposal.json"
+    p.write_text(json.dumps(BASE), encoding="utf-8")
+    with pytest.raises(GuardError):
+        load(p)
+    assert load(p, lab_private_only=True)["rules"][0]["remote_ip"] == "192.168.56.20"
+
+
+def test_native_helper_only_targets_rfc1918():
+    from pathlib import Path
+    source = (Path(__file__).resolve().parents[1] / "native" / "wfp_lab_block.cpp").read_text(encoding="utf-8")
+    assert "static bool lab_private_ipv4" in source
+    assert "!lab_private_ipv4(host_ip)" in source
+    assert "public_ipv4" not in source
+
+
+def test_tcp_lab_client_is_scoped_and_sends_no_data():
+    from pathlib import Path
+    source = (Path(__file__).resolve().parents[1] / "native" / "wfp_lab_connect.cpp").read_text(encoding="utf-8")
+    assert "static bool lab_private_ipv4" in source
+    assert "APG_TEST_CONNECT=" in source
+    assert "IPPROTO_TCP" in source
+    assert "select(" in source
+    assert "send(" not in source
+    assert "WSAStartup" in source
+
+
+def test_lab_private_example_is_valid_only_in_lab():
+    from pathlib import Path
+    from api_privacy_guard.wfp_preflight import load
+    path = Path(__file__).resolve().parents[1] / "examples" / "wfp-lab-private.example.json"
+    assert load(path, lab_private_only=True)["rules"][0]["remote_ip"] == "192.168.56.20"
+    with pytest.raises(GuardError):
+        load(path)
+
+
+def test_lab_connect_compiled_but_never_executed_in_ci():
+    from pathlib import Path
+    workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "wfp-lab-compile.yml").read_text(encoding="utf-8")
+    assert r"native\wfp_lab_connect.cpp" in workflow
+    assert "apg_wfp_lab_connect.exe" in workflow
+    assert "All three executables are compiled" in workflow

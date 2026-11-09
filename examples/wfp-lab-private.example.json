@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "mode": "preview_only",
+  "rules": [
+    {
+      "id": "private-lab-client",
+      "executable": "C:\\Lab\\APIPrivacyGuard\\wfp_lab_connect.exe",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "protocol": "tcp",
+      "remote_ip": "192.168.56.20",
+      "remote_port": 48080
+    }
+  ]
+}

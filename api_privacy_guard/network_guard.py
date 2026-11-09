@@ -68,6 +68,7 @@ def take_snapshot(
     include_children: bool = True,
     reveal_addresses: bool = False,
     process_api: Any | None = None,
+    expected_root_create_time: float | None = None,
 ) -> dict[str, Any]:
     """Inspect a live root process and (by default) current child processes.
 
@@ -80,7 +81,9 @@ def take_snapshot(
     process_errors = (ps.NoSuchProcess, ps.AccessDenied, ps.ZombieProcess)
     try:
         root = ps.Process(root_pid)
-        root.create_time()
+        identity = root.create_time()
+        if expected_root_create_time is not None and identity != expected_root_create_time:
+            raise GuardError('Processo raiz alterou identidade durante a observação.')
     except process_errors:
         raise GuardError('Processo raiz indisponível ou sem permissão de leitura.') from None
 

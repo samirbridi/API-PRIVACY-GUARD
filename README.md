@@ -149,3 +149,7 @@ Um novo comando local, wfp-evidence-review --file, avalia a coerência das obser
 ### Fase 3F — laboratório RFC1918 e cliente TCP de teste
 
 O filtro WFP **manual** foi limitado a endereços IPv4 RFC1918, com uma proposta separada do preview público. Foi acrescentado um cliente TCP inofensivo que não envia conteúdo e pode medir novas tentativas de conexão com servidor próprio em rede host-only de VM. A compilação ocorre no CI, mas **nenhum executável é iniciado no runner**. Veja docs/NETWORK-GUARD-PHASE3F-ISOLATED-TEST-NETWORK.md.
+
+### Network Guard — Fase 4A: Network Watch
+
+O comando network-watch --pid 1234 --samples 5 --interval 1 [--policy examples/network-policy.example.json] compara destinos observados em múltiplas amostras. Os IPs são ocultos por padrão, e as classificações não bloqueiam conexões nem comprovam ausência de vazamentos. Veja docs/NETWORK-GUARD-PHASE4A-WATCH.md.

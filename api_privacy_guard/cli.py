@@ -27,6 +27,13 @@ def main() -> None:
     p.add_argument("--show-ip", action="store_true", help="Exibir IPs remotos (somente na saída local)")
     p.add_argument("--samples", type=int, default=1, help="Amostras entre 1 e 30 (padrão: 1)")
     p.add_argument("--interval", type=float, default=1.0, help="Segundos entre amostras (0.25 a 60)")
+    p = sp.add_parser("network-watch", help="Comparar conexões em amostras locais (somente leitura)")
+    p.add_argument("--pid", type=int, required=True)
+    p.add_argument("--samples", type=int, default=5)
+    p.add_argument("--interval", type=float, default=1.0)
+    p.add_argument("--policy", help="Política JSON opcional de simulação")
+    p.add_argument("--no-children", action="store_true")
+    p.add_argument("--show-ip", action="store_true")
     p = sp.add_parser(
         "network-plan",
         help="Simular política de saída em conexões observadas (SEM aplicar firewall)",
@@ -73,6 +80,16 @@ def main() -> None:
                 )
                 result["sample"] = sample_no + 1
                 print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+        elif args.command == "network-watch":
+            from .network_watch import watch_connections
+            from .network_policy import load_policy
+            result = watch_connections(
+                args.pid,
+                policy=load_policy(args.policy) if args.policy else None,
+                samples=args.samples, interval=args.interval,
+                include_children=not args.no_children, show_ip=args.show_ip,
+            )
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
         elif args.command == "network-plan":
             from .network_guard import take_snapshot
             from .network_policy import load_policy, evaluate_snapshot

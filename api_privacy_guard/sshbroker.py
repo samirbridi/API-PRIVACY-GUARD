@@ -16,37 +16,87 @@ HOST_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9.:-]{0,253}$")
 
 # The remote script is written by this application, never by an agent.
 REMOTE_SCRIPT = r'''
-import os, sys
+# Remote Unix file operations scoped to a pinned directory descriptor.
+# Self-contained Python 3 script executed on the destination Linux host.
+import os
+import stat
+import sys
+
 mode, root, requested, max_bytes = sys.argv[1:5]
 max_bytes = int(max_bytes)
-base = os.path.realpath(root)
-requested_real = os.path.realpath(requested)
-if not os.path.isdir(base) or os.path.commonpath([base, requested_real]) != base:
+if mode not in ('read', 'write') or max_bytes < 1:
+    sys.exit(46)
+
+# No path from the model is trusted without this independent remote check.
+if (not root.startswith('/') or not requested.startswith('/') or
+        '\x00' in root or '\x00' in requested or
+        '..' in root.split('/') or '..' in requested.split('/')):
     sys.exit(40)
-if mode == 'read':
-    if not os.path.isfile(requested_real):
-        sys.exit(41)
-    if os.path.getsize(requested_real) > max_bytes:
-        sys.exit(42)
-    with open(requested_real, 'rb') as stream:
-        content = stream.read(max_bytes + 1)
-    if len(content) > max_bytes: sys.exit(42)
-    sys.stdout.buffer.write(content)
-elif mode == 'write':
-    if not os.path.isfile(requested_real) and not os.path.isdir(os.path.dirname(requested_real)):
-        sys.exit(43)
-    if os.path.islink(requested):
-        sys.exit(44)
-    data = sys.stdin.buffer.read(max_bytes + 1)
-    if len(data) > max_bytes: sys.exit(42)
-    # Existing files only by default: no unexpected new destination or symlinks.
-    if not os.path.isfile(requested_real):
-        sys.exit(45)
-    with open(requested_real, 'wb') as stream:
-        stream.write(data)
-    sys.stdout.write('OK')
-else: sys.exit(46)
+relative = os.path.relpath(requested, root)
+parts = relative.split('/')
+if (relative in ('.', '..') or relative.startswith('../') or
+        any(p in ('', '.', '..') for p in parts)):
+    sys.exit(40)
+
+# Open each directory using a directory FD and O_NOFOLLOW; a rename/symlink
+# swap cannot redirect the final open to a path outside this pinned root.
+flags_dir = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+flags_file = os.O_NOFOLLOW | os.O_NONBLOCK
+# Root itself is opened component-by-component; no symlink in the configured
+# root or its ancestors may silently redirect the trusted directory.
+root_fd = os.open('/', flags_dir)
+try:
+    root_parts = [component for component in root.split('/') if component]
+    if not root_parts or any(component in ('.', '..') for component in root_parts):
+        sys.exit(40)
+    for component in root_parts:
+        next_fd = os.open(component, flags_dir, dir_fd=root_fd)
+        os.close(root_fd)
+        root_fd = next_fd
+    dir_fd = root_fd
+    for component in parts[:-1]:
+        next_fd = os.open(component, flags_dir, dir_fd=dir_fd)
+        if dir_fd != root_fd:
+            os.close(dir_fd)
+        dir_fd = next_fd
+    try:
+        flags = flags_file | (os.O_RDONLY if mode == 'read' else os.O_WRONLY)
+        fd = os.open(parts[-1], flags, dir_fd=dir_fd)
+        try:
+            info = os.fstat(fd)
+            # Reject nonregular targets and hardlinks to files outside root.
+            if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
+                sys.exit(45)
+            if mode == 'read':
+                if info.st_size > max_bytes:
+                    sys.exit(42)
+                with os.fdopen(fd, 'rb', closefd=False) as stream:
+                    content = stream.read(max_bytes + 1)
+                if len(content) > max_bytes:
+                    sys.exit(42)
+                sys.stdout.buffer.write(content)
+            else:
+                # Validate all input before modifying the existing file.
+                payload = sys.stdin.buffer.read(max_bytes + 1)
+                if len(payload) > max_bytes:
+                    sys.exit(42)
+                os.ftruncate(fd, 0)
+                view = memoryview(payload)
+                while view:
+                    written = os.write(fd, view)
+                    if written <= 0:
+                        sys.exit(47)
+                    view = view[written:]
+                sys.stdout.write('OK')
+        finally:
+            os.close(fd)
+    finally:
+        if dir_fd != root_fd:
+            os.close(dir_fd)
+finally:
+    os.close(root_fd)
 '''
+
 
 
 def validate_path(target: dict, requested: str) -> str:

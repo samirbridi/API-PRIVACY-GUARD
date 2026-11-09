@@ -29,7 +29,7 @@ Um agente de programação autorizado deve poder solicitar tarefas (ler arquivos
 - Roubo de credenciais por malware na mesma conta Windows;
 - Uso indevido de credenciais por aplicativos autorizados com acesso ao SSH Agent;
 - Vazamento de dados que não correspondem aos padrões do scanner;
-- Corridas de symlink e outras vulnerabilidades em operações remotas;
+- Symlink/TOCTOU no acesso direto a arquivos SSH: mitigação proposta por `dir_fd`/`O_NOFOLLOW`, pendente revisão e testes com servidor real; outras corridas e limitações do SO permanecem;
 - Retenção dos dados de prompts/arquivos pelos fornecedores de modelos;
 - Engenharia social ou políticas de exceção amplas demais.
 

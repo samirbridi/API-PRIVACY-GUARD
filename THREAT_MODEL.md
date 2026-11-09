@@ -58,3 +58,7 @@ Identidade por caminho e hash é verificada apenas no instante da proposta, não
 ## Limite do diagnóstico WFP nativo — Fase 3B
 
 O diagnóstico WFP consulta a identidade nativa de um executável em uma sessão dinâmica temporária. O AppID integral não é retornado e nenhuma operação de criação de filtros é disponibilizada. **Essa consulta não impede vazamentos.** O futuro controle de saída exigirá filtros por executável/IPv4/IPv6, testes de precedência, isolamento de subprocessos e validação de rollback em Windows reais.
+
+## Fase 3C — risco operacional em filtro WFP de laboratório
+
+O helper nativo agora contém um filtro WFP real, mas é manual e exige confirmação dupla. Ele pode interromper tráfego que coincida com o escopo exato; a limpeza depende do encerramento da sessão dinâmica e deve ser verificada em VM. O SHA-256 é conferido no planejador, não no momento da adição pelo helper, e não equivale à identidade imutável do processo. Não existe isolamento de subprocessos nem inspeção HTTPS. **Não executar em produção ou em estações de transmissão.**

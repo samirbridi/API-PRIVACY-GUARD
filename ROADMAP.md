@@ -42,3 +42,7 @@ Protótipo WFP preview-only: política explicitamente restrita a executável, ha
 ## Fase 3B — diagnóstico WFP nativo
 
 O comando `wfp-native-diagnose` consulta a identidade do executável via `fwpuclnt.dll`, abrindo e encerrando uma sessão dinâmica vazia. **Ainda não há enforcement**, e o teste automatizado é simulado. Antes de adicionar filtros temporários, são obrigatórios testes reais no Windows, revisão de privilégio, escopo e rollback. [Plano da fase 3B](docs/NETWORK-GUARD-PHASE3B-NATIVE-DIAGNOSTICS.md).
+
+## Fase 3C — WFP nativo, bloqueio de laboratório
+
+Implementação experimental de um único filtro temporário WFP, somente via executável manual e confirmação dupla em VM descartável. Há testes Python simulados e compilação Windows em CI, mas falta testar comportamento real, compatibilidade, rollback e efeitos de filtros. **Não liberado em produção.** Consulte `docs/NETWORK-GUARD-PHASE3C-WFP-LAB.md`.

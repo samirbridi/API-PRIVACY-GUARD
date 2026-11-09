@@ -137,3 +137,7 @@ Os comandos `wfp-hash` e `wfp-preview --proposal` verificam executável Windows,
 ## Network Guard — Fase 3B: diagnóstico WFP nativo (experimental)
 
 O comando `wfp-native-diagnose --exe 'C:\\Program Files\\ExampleIDE\\agent.exe'` realiza uma consulta local à Windows Filtering Platform (WFP): abre uma sessão dinâmica temporária, obtém o AppID do executável e fecha a sessão. **Não cria filtros, não bloqueia tráfego, não modifica o Firewall do Windows e não examina dados HTTPS.** Use inicialmente apenas em ambiente Windows de testes. Veja [a documentação de diagnóstico WFP](docs/NETWORK-GUARD-PHASE3B-NATIVE-DIAGNOSTICS.md).
+
+### Fase 3C — Ensaio WFP temporário somente em VM
+
+O projeto inclui um helper experimental C++ (`native/wfp_lab_block.cpp`) capaz de criar **um filtro de saída WFP** restrito a executável, IPv4, porta e TCP/UDP por até 30 segundos, utilizando sessão dinâmica. **NÃO é ativado automaticamente** por nenhuma IDE, MCP, instalador ou comando de diagnóstico. `wfp-lab-plan` apenas prepara um comando para revisão. O helper não foi validado em Windows real e **só deve ser compilado e testado manualmente em uma VM descartável**. Leia [`docs/NETWORK-GUARD-PHASE3C-WFP-LAB.md`](docs/NETWORK-GUARD-PHASE3C-WFP-LAB.md). Continua não sendo um firewall global de privacidade.

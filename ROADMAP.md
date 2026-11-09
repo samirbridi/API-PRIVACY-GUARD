@@ -34,3 +34,7 @@ Disponível para revisão: inventário local de conexões por PID e subprocessos
 ## Network Guard — fase 2: política simulada
 
 O comando `network-plan` compara amostras locais com regras estritas, apresenta `allow_candidate`, `block_candidate` ou `review`, e **não altera o tráfego**. A próxima etapa é desenvolver o backend WFP com identidade verificável do executável, isolamento de subprocessos e rollback testado. Veja [docs/NETWORK-GUARD-PHASE2.md](docs/NETWORK-GUARD-PHASE2.md).
+
+## Network Guard — fase 3A
+
+Protótipo WFP preview-only: política explicitamente restrita a executável, hash SHA-256, IP público único, porta e protocolo. **Nenhum filtro é aplicado**; fase 3B deverá construir backend nativo de sessão dinâmica, autorização explícita, rollback e testes Windows em VM. Consulte docs/NETWORK-GUARD-PHASE3-WFP-PREFLIGHT.md.

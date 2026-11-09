@@ -129,3 +129,7 @@ Antes de qualquer uso real, utilize um servidor de testes com um usuário dedica
 ## Aviso
 
 Este software foi gerado como protótipo inicial e testes unitários foram feitos em ambiente Linux isolado/mocks. **Não foi instalado nem testado nas suas IDEs ou servidores Windows/SSH reais.** Avalie cuidadosamente antes de conceder credenciais ou permissões de produção.
+
+## Network Guard — fase 3A: pré-validação de filtros WFP
+
+Os comandos `wfp-hash` e `wfp-preview --proposal` verificam executável Windows, SHA-256, destino, protocolo e porta antes de produzir um **plano não executável** para revisão. **Não são aplicadas regras WFP nem alterações de firewall**. Veja [a documentação da fase 3A](docs/NETWORK-GUARD-PHASE3-WFP-PREFLIGHT.md).

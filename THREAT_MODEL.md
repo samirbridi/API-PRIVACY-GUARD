@@ -50,3 +50,7 @@ O comando network-snapshot observa **parte** das conexões do processo/árvore s
 ## Simulação de regras de saída
 
 A fase 2 apenas interpreta snapshots locais. Nomes e PIDs de processos podem ser contornados, dados de amostragem podem estar incompletos e não há intervenção em conexões HTTPS. Por isso não reivindicamos filtragem global de dados nem isolamento de agentes. Identidade por executável, política WFP, rollback, supervisão e proteção de conteúdo continuam pendentes. Veja `docs/NETWORK-GUARD-PHASE2.md`.
+
+## WFP preflight (fase 3A)
+
+Identidade por caminho e hash é verificada apenas no instante da proposta, não vincula de forma imutável o processo e não bloqueia subprocessos ou conexões. IPs podem representar serviços compartilhados. O preflight não intercepta dados HTTPS nem altera a rede. Nenhuma garantia de enforcement é feita nesta fase.

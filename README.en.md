@@ -35,3 +35,7 @@ The rename also changes the local configuration directory, keyring service, Pyth
 ## License
 
 Apache License 2.0. See [LICENSE](LICENSE).
+
+## Network Guard — Phase 3A (read-only WFP preflight)
+
+Windows CLI commands wfp-hash and wfp-preview verify a local executable fingerprint and a narrow, exact public-IP destination. This is a **design preview only**; no WFP session, firewall rule, or traffic blocking is activated. See [phase 3A documentation](docs/NETWORK-GUARD-PHASE3-WFP-PREFLIGHT.md).

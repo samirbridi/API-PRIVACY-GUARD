@@ -42,3 +42,7 @@ Negar por padrão aquilo que o broker não está autorizado a fazer, não captur
 ## Inspeção de dados de saída (experimental)
 
 O broker de APIs passa a inspecionar dados controlados pelo agente no caminho, query e corpo JSON **antes** da transmissão. Isso não substitui isolamento de processos nem cobre conexões diretas fora do broker. Veja `docs/SECURITY-RESEARCH-2026-11-08.md`.
+
+## Inventário de rede (fase experimental)
+
+O comando network-snapshot observa **parte** das conexões do processo/árvore selecionada. Não controla saída nem detecta necessariamente processos fora da árvore, conexões transitórias, DNS delegado ou conteúdos de tráfego criptografado. Zero conexões observadas **não** comprova ausência de vazamentos. Não há mudança no firewall nesta fase.

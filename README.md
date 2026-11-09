@@ -145,3 +145,7 @@ O projeto inclui um helper experimental C++ (`native/wfp_lab_block.cpp`) capaz d
 ### Fase 3E — revisão offline de evidências de laboratório
 
 Um novo comando local, wfp-evidence-review --file, avalia a coerência das observações de presença e remoção de filtro WFP e da recuperação de conectividade em ensaios de laboratório. **Não executa filtros, não inspeciona pacotes, não usa rede nem altera firewall.** Resultados coerentes não equivalem a comprovação independente ou autorização de produção. Veja docs/NETWORK-GUARD-PHASE3E-OFFLINE-EVIDENCE.md.
+
+### Fase 3F — laboratório RFC1918 e cliente TCP de teste
+
+O filtro WFP **manual** foi limitado a endereços IPv4 RFC1918, com uma proposta separada do preview público. Foi acrescentado um cliente TCP inofensivo que não envia conteúdo e pode medir novas tentativas de conexão com servidor próprio em rede host-only de VM. A compilação ocorre no CI, mas **nenhum executável é iniciado no runner**. Veja docs/NETWORK-GUARD-PHASE3F-ISOLATED-TEST-NETWORK.md.

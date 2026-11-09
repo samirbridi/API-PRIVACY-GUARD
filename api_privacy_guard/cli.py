@@ -97,7 +97,7 @@ def main() -> None:
             from .wfp_preflight import load as load_wfp
             from .wfp_lab import prepare_lab_command
             data = prepare_lab_command(
-                load_wfp(args.proposal), args.helper,
+                load_wfp(args.proposal, lab_private_only=True), args.helper,
                 seconds=args.seconds,
                 vm_acknowledged=args.confirm_disposable_vm,
             )

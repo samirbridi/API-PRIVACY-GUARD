@@ -13,6 +13,9 @@ PATH = re.compile(r"^[A-Za-z]:\\")
 RULE_ID = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,63}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 FIELDS = {"id", "executable", "sha256", "protocol", "remote_ip", "remote_port"}
+# This separate operator-controlled VM lab policy cannot target public destinations.
+# Never use ipaddress.is_private alone: it includes non-RFC1918 special-use networks.
+LAB_RFC1918 = tuple(map(ipaddress.ip_network, ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16")))
 
 def validate_path(path):
     if not isinstance(path, str) or len(path) > 512 or not PATH.match(path):
@@ -25,7 +28,7 @@ def validate_path(path):
         raise GuardError("Requer arquivo .exe em caminho canônico.")
     return path
 
-def validate(data):
+def validate(data, *, lab_private_only: bool = False):
     if not isinstance(data, dict) or set(data) != {'schema_version', 'mode', 'rules'}:
         raise GuardError("Formato de proposta WFP inválido.")
     if type(data['schema_version']) is not int or data['schema_version'] != 1 or data['mode'] != 'preview_only':
@@ -59,12 +62,17 @@ def validate(data):
             ip = ipaddress.ip_address(target)
         except ValueError:
             raise GuardError("IP inválido.") from None
-        if ip.compressed != target.lower() or not ip.is_global or ip.is_multicast or ip.is_reserved:
+        if ip.compressed != target.lower() or ip.is_multicast or ip.is_reserved:
+            raise GuardError("Endereço não canônico ou inválido.")
+        if lab_private_only:
+            if not isinstance(ip, ipaddress.IPv4Address) or not any(ip in net for net in LAB_RFC1918):
+                raise GuardError("Laboratório exige um IP IPv4 privado RFC1918, nunca público.")
+        elif not ip.is_global:
             raise GuardError("Somente IP público unicast individual nesta fase.")
         result.append({**rule, 'ip_version': ip.version})
     return result
 
-def load(path):
+def load(path, *, lab_private_only: bool = False):
     try:
         with Path(path).expanduser().open('rb') as f:
             raw = f.read(65537)
@@ -82,7 +90,7 @@ def load(path):
         raise
     except (OSError, UnicodeError, ValueError):
         raise GuardError("Não foi possível ler a proposta.") from None
-    validate(value)
+    validate(value, lab_private_only=lab_private_only)
     return value
 
 def fingerprint(path):

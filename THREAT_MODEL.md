@@ -74,3 +74,7 @@ O helper de laboratório agora exige um hash SHA-256 explícito e recalcula o di
 ## Fase 3E — evidência offline não é atestado
 
 Análise apenas de registros estruturados preenchidos manualmente pelo operador. Consistência entre eventos declarados não comprova que uma política WFP bloqueou pacotes, nem garante privacidade diante de APIs externas. Nenhum acesso à rede ou modificação de firewall acontece durante a avaliação.
+
+## Fase 3F — isolamento de laboratório não é comprovado pelo IP
+
+O helper passou a recusar endereços públicos e aceitar somente IPv4 RFC1918, minimizando testes contra terceiros. A faixa privada não comprova a virtualização ou isolamento da rede; o operador precisa controlar VM, adaptadores e servidor de teste. O cliente TCP não envia dados de aplicação, mas realiza handshake de rede quando executado manualmente. Falha de conexão isolada não prova que WFP a bloqueou.

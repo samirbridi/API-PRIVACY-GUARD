@@ -34,7 +34,7 @@ def prepare_lab_command(
     validate_path(helper_executable)
     if ntpath.basename(helper_executable).lower() != "wfp_lab_block.exe":
         raise GuardError("O executável auxiliar deve ser wfp_lab_block.exe.")
-    rules = validate(proposal)
+    rules = validate(proposal, lab_private_only=True)
     if len(rules) != 1:
         raise GuardError("O laboratório exige exatamente uma regra.")
     rule = rules[0]

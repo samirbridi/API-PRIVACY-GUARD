@@ -7,7 +7,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from .config import GuardError, profile
-from .scanner import check_for_model
+from .scanner import check_for_model, check_outbound_api_data
 from .audit import record
 
 
@@ -86,6 +86,14 @@ def api_call(cfg: dict, name: str, method: str, path: str, body_json: str = "") 
     if auth not in ("bearer", "x-api-key"):
         raise GuardError("Tipo de autenticação não suportado.")
     token = _get_token(svc.get("token_name", ""))
+    # The locally generated Authorization header remains allowed; block secrets
+    # in path, query and JSON content controlled by an AI agent before network I/O.
+    try:
+        check_outbound_api_data(path, body, token)
+    except GuardError:
+        # Do not put original query, body or a secret-derived hash in logs.
+        record("api_" + method.lower(), name, "blocked_outbound_secret", "request")
+        raise
     headers = {"Accept": "application/json", "Content-Type": "application/json",
                "User-Agent": "APIPrivacyGuard/0.1"}
     if auth == "bearer":

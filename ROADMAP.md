@@ -23,6 +23,6 @@
 
 Contribuições que melhorem o modelo de ameaças, mecanismos de isolamento, autorização, observabilidade e testes de segurança são especialmente bem-vindas.
 
-## Revisão SSH — novembro de 2026
+## Revisão de segurança (novembro de 2026)
 
-Proposta de isolamento de acesso a arquivos remotos com diretórios abertos por descritores (`dir_fd`) e `O_NOFOLLOW`, rejeitando symlinks e hardlinks. A proteção ainda depende das permissões do usuário remoto e **não** substitui sandbox, isolamento da IDE ou controles globais de rede. Revisar impacto em projetos que usam symlinks antes de habilitar em produção.
+Veja [`docs/SECURITY-RESEARCH-2026-11-08.md`](docs/SECURITY-RESEARCH-2026-11-08.md) para matriz de ameaças, lacunas de cobertura e prioridades P0/P1/P2. A proteção do broker MCP **não** equivale à interceptação global do tráfego dos agentes.

@@ -65,6 +65,8 @@ O programa pedirá o valor ocultamente. O alias `demo-token` corresponde ao camp
 
 `call_authorized_api(service, method, relative_path, body_json)` não permite URL absoluta fornecida pelo modelo nem redirecionamentos HTTP. As permissões exigem método e caminho previamente cadastrados.
 
+**Proteção de saída em desenvolvimento:** o broker local agora verifica padrões comuns de segredos em caminhos HTTP, parâmetros e JSON controlados pelo agente antes da transmissão. O token guardado localmente continua sendo inserido somente no cabeçalho HTTPS necessário ao destino previamente autorizado. Isto **não** intercepta chamadas diretas da IDE nem constitui um DLP completo. Veja [`docs/SECURITY-RESEARCH-2026-11-08.md`](docs/SECURITY-RESEARCH-2026-11-08.md).
+
 ### Vincular ao agente via MCP (stdio)
 
 Consulte `examples/mcp-client-config.json`. Altere o caminho do Python para o absoluto da instalação. O comando é:

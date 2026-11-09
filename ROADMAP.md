@@ -26,3 +26,7 @@ Contribuições que melhorem o modelo de ameaças, mecanismos de isolamento, aut
 ## Revisão de segurança (novembro de 2026)
 
 Veja [`docs/SECURITY-RESEARCH-2026-11-08.md`](docs/SECURITY-RESEARCH-2026-11-08.md) para matriz de ameaças, lacunas de cobertura e prioridades P0/P1/P2. A proteção do broker MCP **não** equivale à interceptação global do tráfego dos agentes.
+
+## Network Guard — incremento experimental, sem bloqueio
+
+Disponível para revisão: inventário local de conexões por PID e subprocessos, com IPs ocultos por padrão e **nenhuma alteração no firewall**. Isto não conclui a v0.3 nem cobre todas as rotas de tráfego das IDEs. Consulte [docs/NETWORK-GUARD-PHASE1.md](docs/NETWORK-GUARD-PHASE1.md).

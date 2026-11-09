@@ -133,3 +133,7 @@ Este software foi gerado como protótipo inicial e testes unitários foram feito
 ## Network Guard — fase 3A: pré-validação de filtros WFP
 
 Os comandos `wfp-hash` e `wfp-preview --proposal` verificam executável Windows, SHA-256, destino, protocolo e porta antes de produzir um **plano não executável** para revisão. **Não são aplicadas regras WFP nem alterações de firewall**. Veja [a documentação da fase 3A](docs/NETWORK-GUARD-PHASE3-WFP-PREFLIGHT.md).
+
+## Network Guard — Fase 3B: diagnóstico WFP nativo (experimental)
+
+O comando `wfp-native-diagnose --exe 'C:\\Program Files\\ExampleIDE\\agent.exe'` realiza uma consulta local à Windows Filtering Platform (WFP): abre uma sessão dinâmica temporária, obtém o AppID do executável e fecha a sessão. **Não cria filtros, não bloqueia tráfego, não modifica o Firewall do Windows e não examina dados HTTPS.** Use inicialmente apenas em ambiente Windows de testes. Veja [a documentação de diagnóstico WFP](docs/NETWORK-GUARD-PHASE3B-NATIVE-DIAGNOSTICS.md).

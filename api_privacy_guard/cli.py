@@ -39,6 +39,8 @@ def main() -> None:
     p.add_argument("--exe", required=True, help="Caminho absoluto de arquivo .exe")
     p = sp.add_parser("wfp-preview", help="Prévia WFP SEM criar filtros")
     p.add_argument("--proposal", required=True, help="Proposta JSON local")
+    p = sp.add_parser("wfp-native-diagnose", help="Diagnóstico WFP nativo (sem criar filtros)")
+    p.add_argument("--exe", required=True, help="Caminho absoluto do executável Windows")
     args = parser.parse_args()
     try:
         if args.command == "init":
@@ -81,6 +83,9 @@ def main() -> None:
         elif args.command == "wfp-preview":
             from .wfp_preflight import load, preview
             print(json.dumps(preview(load(args.proposal)), ensure_ascii=False, sort_keys=True))
+        elif args.command == "wfp-native-diagnose":
+            from .wfp_native import diagnose
+            print(json.dumps(diagnose(args.exe), ensure_ascii=False, sort_keys=True))
         elif args.command in ("secret-set", "secret-delete"):
             if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", args.name):
                 raise GuardError("Alias inválido.")

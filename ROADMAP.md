@@ -46,3 +46,7 @@ O comando `wfp-native-diagnose` consulta a identidade do executável via `fwpucl
 ## Fase 3C — WFP nativo, bloqueio de laboratório
 
 Implementação experimental de um único filtro temporário WFP, somente via executável manual e confirmação dupla em VM descartável. Há testes Python simulados e compilação Windows em CI, mas falta testar comportamento real, compatibilidade, rollback e efeitos de filtros. **Não liberado em produção.** Consulte `docs/NETWORK-GUARD-PHASE3C-WFP-LAB.md`.
+
+## Fase 3C — auditoria do ciclo de vida de filtros (para revisão)
+
+Consulta somente leitura por ID WFP para evidenciar presença e desaparecimento de filtro após o fechamento da sessão ou interrupção do helper. A API de fechamento agora tem resultado verificado. **Ainda faltam ensaios funcionais reais em uma VM Windows isolada.**

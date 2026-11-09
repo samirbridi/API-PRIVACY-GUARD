@@ -54,6 +54,7 @@ def prepare_lab_command(
     command = [
         helper_executable,
         "--lab-block", "--exe", rule["executable"],
+        "--sha256", rule["sha256"],
         "--ip", rule["remote_ip"], "--port", str(rule["remote_port"]),
         "--protocol", rule["protocol"], "--seconds", str(seconds),
         "--confirm", "LAB-ONLY-EPHEMERAL-BLOCK",

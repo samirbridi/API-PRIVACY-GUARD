@@ -18,7 +18,7 @@ Há confirmação dupla: argumento --confirm LAB-ONLY-EPHEMERAL-BLOCK e variáve
 
 Abrir x64 Native Tools Command Prompt for VS no diretório do projeto e executar:
 
-    cl /nologo /std:c++17 /EHsc /W4 /utf-8 native\wfp_lab_block.cpp /Fe:wfp_lab_block.exe fwpuclnt.lib ws2_32.lib ole32.lib
+    cl /nologo /std:c++17 /EHsc /W4 /utf-8 native\wfp_lab_block.cpp /Fe:wfp_lab_block.exe fwpuclnt.lib ws2_32.lib ole32.lib advapi32.lib
 
 A GitHub Action desta etapa faz SOMENTE compilação; não executa binários nem altera o Windows Firewall.
 
@@ -35,7 +35,7 @@ O planejador apenas retorna parâmetros para revisão; não executa o helper. So
 
 - O helper NÃO foi compilado/executado em Windows pela equipe; apenas testes locais simulados foram realizados.
 - Somente IPv4, uma regra, TCP/UDP e IP explícito. Não cobre IPv6, DNS/DoH, VPN, proxy, QUIC, subprocessos ou bypass da IDE.
-- A conferência SHA-256 ocorre na etapa de planejamento. O helper nativo não verifica o hash novamente; o WFP filtra por App ID, não por hash. Permanecem riscos de troca do executável e de identidade de processo.
+- O planejador e o helper nativo verificam SHA-256. O helper recebe `--sha256 <64 hex minúsculos>`, mantém um handle de leitura que nega compartilhamento de escrita/exclusão e compara o hash **antes** de abrir a sessão WFP. Isso reduz uma janela de substituição do arquivo, mas **não garante** identidade do processo em execução, nem elimina acessos preexistentes ou alterações no sistema com privilégios elevados. A identidade do filtro WFP continua baseada no App ID.
 - Bloqueios WFP podem entrar em conflito com firewall, GPO e MDM. Testar sempre SSH, Git e API em ambiente descartável.
 - WFP não inspeciona HTTPS nem impede retenção posterior de dados que já chegaram a um fornecedor.
 
@@ -67,3 +67,9 @@ Executar testes funcionais de conexão **somente com cliente e endpoint controla
 A variável de confirmação declarada pelo operador não é uma prova técnica de que o Windows está em uma VM. Não executar em estação de produção ou transmissão, nem usar IPs de terceiros como alvos de testes.
 
 Referências oficiais: [Microsoft FwpmFilterGetById0](https://learn.microsoft.com/en-us/windows/win32/api/fwpmu/nf-fwpmu-fwpmfiltergetbyid0), [Microsoft FwpmEngineClose0](https://learn.microsoft.com/en-us/windows/win32/api/fwpmu/nf-fwpmu-fwpmengineclose0), [WFP Object Management](https://learn.microsoft.com/en-us/windows/win32/fwp/object-management).
+
+## Hardening da Fase 3D: SHA-256 obrigatório na execução nativa
+
+O comando preparado em `wfp-lab-plan` inclui agora `--sha256 <hash-do-executável>`. O helper rejeita hash ausente, divergente ou inválido. Usa CryptoAPI/Windows para ler o arquivo, mantém um handle de leitura restrito durante a sessão e recusa pontos de redirecionamento detectados no caminho final. Não existe alteração automática no Windows e o helper continua limitado à VM descartável. O valor do hash pode revelar a versão do executável quando compartilhado; evite publicar dados identificáveis de instalações locais.
+
+**Validação pendente:** build Windows CI e ensaios em VM. A verificação não associa criptograficamente o filtro WFP ao processo que já estiver rodando; não é atestado de assinatura, nem proteção contra administrador comprometido.

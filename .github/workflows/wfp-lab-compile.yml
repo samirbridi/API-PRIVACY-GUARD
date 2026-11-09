@@ -1,0 +1,30 @@
+name: Compile WFP lab helper (never execute)
+on:
+  pull_request:
+    paths:
+      - "native/**"
+      - ".github/workflows/wfp-lab-compile.yml"
+  push:
+    branches: [main]
+    paths:
+      - "native/**"
+      - ".github/workflows/wfp-lab-compile.yml"
+permissions:
+  contents: read
+jobs:
+  compile-only:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Compile with MSVC (NEVER run executable)
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (!(Test-Path $vswhere)) { throw "VS Build Tools not available" }
+          $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (!$vs) { throw "MSVC not available" }
+          $devcmd = Join-Path $vs 'Common7\Tools\VsDevCmd.bat'
+          $build = 'call "' + $devcmd + '" -no_logo -arch=x64 && cl /nologo /std:c++17 /EHsc /W4 /utf-8 native\wfp_lab_block.cpp /Fe:%TEMP%\apg_wfp_lab_helper.exe fwpuclnt.lib ws2_32.lib ole32.lib'
+          & cmd.exe /D /S /C $build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # The compiled executable is NOT executed or uploaded.

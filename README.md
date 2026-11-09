@@ -92,6 +92,16 @@ Um novo comando local observa conexões de uma IDE e dos seus subprocessos **sem
 
 Substitua 1234 pelo PID da IDE selecionada. A saída apresenta apenas metadados; endereços IP ficam ocultos por padrão (opção explícita --show-ip). O comando **não é um firewall nem comprova** que toda comunicação foi observada. Consulte [NETWORK-GUARD-PHASE1](docs/NETWORK-GUARD-PHASE1.md).
 
+## Network Guard — simulação de políticas (fase 2)
+
+Além de `network-snapshot`, o comando abaixo compara uma amostra de conexões locais com regras por processo, protocolo, porta e categoria/CIDR:
+
+```powershell
+.\.venv\Scripts\python.exe -m api_privacy_guard.cli network-plan --pid 1234 --policy examples/network-policy.example.json
+```
+
+As decisões `allow_candidate`, `block_candidate` e `review` são **apenas simulações**. O programa **não altera o firewall nem bloqueia conexões**; IPs ficam ocultos por padrão. Nomes de processos não são identidades confiáveis e snapshots não provam a ausência de vazamentos. Consulte [docs/NETWORK-GUARD-PHASE2.md](docs/NETWORK-GUARD-PHASE2.md).
+
 ## O que esta versão NÃO protege
 
 - Chamadas diretas da IDE à API do modelo, browser incorporado, terminal próprio e outras ferramentas não mediadas pelo MCP.

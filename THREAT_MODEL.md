@@ -46,3 +46,7 @@ O broker de APIs passa a inspecionar dados controlados pelo agente no caminho, q
 ## Inventário de rede (fase experimental)
 
 O comando network-snapshot observa **parte** das conexões do processo/árvore selecionada. Não controla saída nem detecta necessariamente processos fora da árvore, conexões transitórias, DNS delegado ou conteúdos de tráfego criptografado. Zero conexões observadas **não** comprova ausência de vazamentos. Não há mudança no firewall nesta fase.
+
+## Simulação de regras de saída
+
+A fase 2 apenas interpreta snapshots locais. Nomes e PIDs de processos podem ser contornados, dados de amostragem podem estar incompletos e não há intervenção em conexões HTTPS. Por isso não reivindicamos filtragem global de dados nem isolamento de agentes. Identidade por executável, política WFP, rollback, supervisão e proteção de conteúdo continuam pendentes. Veja `docs/NETWORK-GUARD-PHASE2.md`.

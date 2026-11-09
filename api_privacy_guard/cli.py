@@ -27,6 +27,14 @@ def main() -> None:
     p.add_argument("--show-ip", action="store_true", help="Exibir IPs remotos (somente na saída local)")
     p.add_argument("--samples", type=int, default=1, help="Amostras entre 1 e 30 (padrão: 1)")
     p.add_argument("--interval", type=float, default=1.0, help="Segundos entre amostras (0.25 a 60)")
+    p = sp.add_parser(
+        "network-plan",
+        help="Simular política de saída em conexões observadas (SEM aplicar firewall)",
+    )
+    p.add_argument("--pid", type=int, required=True, help="PID de um processo de desenvolvimento")
+    p.add_argument("--policy", required=True, help="Arquivo local JSON de regras de simulação")
+    p.add_argument("--no-children", action="store_true", help="Não incluir subprocessos")
+    p.add_argument("--show-ip", action="store_true", help="Exibir IPs remotos somente localmente")
     args = parser.parse_args()
     try:
         if args.command == "init":
@@ -52,6 +60,17 @@ def main() -> None:
                 )
                 result["sample"] = sample_no + 1
                 print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+        elif args.command == "network-plan":
+            from .network_guard import take_snapshot
+            from .network_policy import load_policy, evaluate_snapshot
+            policy = load_policy(args.policy)
+            # Always collect IPs internally to permit exact CIDR matching;
+            # evaluation removes them from output unless --show-ip was chosen.
+            snapshot = take_snapshot(
+                args.pid, include_children=not args.no_children, reveal_addresses=True
+            )
+            result = evaluate_snapshot(snapshot, policy, show_ip=args.show_ip)
+            print(json.dumps(result, ensure_ascii=False, sort_keys=True))
         elif args.command in ("secret-set", "secret-delete"):
             if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", args.name):
                 raise GuardError("Alias inválido.")

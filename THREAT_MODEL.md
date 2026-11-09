@@ -61,7 +61,7 @@ O diagnóstico WFP consulta a identidade nativa de um executável em uma sessão
 
 ## Fase 3C — risco operacional em filtro WFP de laboratório
 
-O helper nativo agora contém um filtro WFP real, mas é manual e exige confirmação dupla. Ele pode interromper tráfego que coincida com o escopo exato; a limpeza depende do encerramento da sessão dinâmica e deve ser verificada em VM. O SHA-256 é conferido no planejador, não no momento da adição pelo helper, e não equivale à identidade imutável do processo. Não existe isolamento de subprocessos nem inspeção HTTPS. **Não executar em produção ou em estações de transmissão.**
+O helper nativo agora contém um filtro WFP real, mas é manual e exige confirmação dupla. Ele pode interromper tráfego que coincida com o escopo exato; a limpeza depende do encerramento da sessão dinâmica e deve ser verificada em VM. O SHA-256 é conferido novamente pelo helper nativo antes da adição do filtro, mas não equivale à identidade imutável do processo. Não existe isolamento de subprocessos nem inspeção HTTPS. **Não executar em produção ou em estações de transmissão.**
 
 ## Risco residual na verificação de rollback WFP
 
@@ -70,3 +70,7 @@ O novo probe permite diferenciar a ausência de um objeto de filtro de erro de c
 ## Fase 3D — verificação nativa SHA-256 do alvo
 
 O helper de laboratório agora exige um hash SHA-256 explícito e recalcula o digest local do executável antes de instalar o filtro, conservando o handle aberto com compartilhamento restrito. Isso reduz o risco de troca entre planejamento e execução, mas não fornece prova imutável de identidade do processo, não impede alterações por identidades privilegiadas nem cria um firewall abrangente. A execução permanece manual e confinada a VM de laboratório.
+
+## Fase 3E — evidência offline não é atestado
+
+Análise apenas de registros estruturados preenchidos manualmente pelo operador. Consistência entre eventos declarados não comprova que uma política WFP bloqueou pacotes, nem garante privacidade diante de APIs externas. Nenhum acesso à rede ou modificação de firewall acontece durante a avaliação.

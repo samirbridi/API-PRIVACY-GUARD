@@ -141,3 +141,7 @@ O comando `wfp-native-diagnose --exe 'C:\\Program Files\\ExampleIDE\\agent.exe'`
 ### Fase 3C — Ensaio WFP temporário somente em VM
 
 O projeto inclui um helper experimental C++ (`native/wfp_lab_block.cpp`) capaz de criar **um filtro de saída WFP** restrito a executável, IPv4, porta e TCP/UDP por até 30 segundos, utilizando sessão dinâmica. **NÃO é ativado automaticamente** por nenhuma IDE, MCP, instalador ou comando de diagnóstico. `wfp-lab-plan` apenas prepara um comando para revisão. O helper não foi validado em Windows real e **só deve ser compilado e testado manualmente em uma VM descartável**. Leia [`docs/NETWORK-GUARD-PHASE3C-WFP-LAB.md`](docs/NETWORK-GUARD-PHASE3C-WFP-LAB.md). Continua não sendo um firewall global de privacidade.
+
+### Fase 3E — revisão offline de evidências de laboratório
+
+Um novo comando local, wfp-evidence-review --file, avalia a coerência das observações de presença e remoção de filtro WFP e da recuperação de conectividade em ensaios de laboratório. **Não executa filtros, não inspeciona pacotes, não usa rede nem altera firewall.** Resultados coerentes não equivalem a comprovação independente ou autorização de produção. Veja docs/NETWORK-GUARD-PHASE3E-OFFLINE-EVIDENCE.md.

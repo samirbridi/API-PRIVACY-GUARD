@@ -50,3 +50,7 @@ Implementação experimental de um único filtro temporário WFP, somente via ex
 ## Fase 3C — auditoria do ciclo de vida de filtros (para revisão)
 
 Consulta somente leitura por ID WFP para evidenciar presença e desaparecimento de filtro após o fechamento da sessão ou interrupção do helper. A API de fechamento agora tem resultado verificado. **Ainda faltam ensaios funcionais reais em uma VM Windows isolada.**
+
+## Fase 3E — revisão offline de evidências WFP
+
+Ferramenta local e sem acesso à rede para análise de evidências manuais de filtros temporários, validação de remoção após encerramento normal e abrupto, e verificação de relatos de conectividade restaurada. Não executa WFP nem aprova uso em produção; validação em VM e revisão independente continuam obrigatórias.

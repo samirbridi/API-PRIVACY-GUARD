@@ -46,6 +46,8 @@ def main() -> None:
     p.add_argument("--helper", required=True, help="Caminho absoluto do wfp_lab_block.exe")
     p.add_argument("--seconds", type=int, default=10, help="Duração de 5 a 30 segundos")
     p.add_argument("--confirm-disposable-vm", action="store_true", help="Declara uso em VM descartável")
+    p = sp.add_parser("wfp-evidence-review", help="Revisar evidências WFP locais (sem acessar rede/firewall)")
+    p.add_argument("--file", required=True, help="JSON local de evidências de laboratório")
     args = parser.parse_args()
     try:
         if args.command == "init":
@@ -100,6 +102,10 @@ def main() -> None:
                 vm_acknowledged=args.confirm_disposable_vm,
             )
             print(json.dumps(data, ensure_ascii=False, sort_keys=True))
+        elif args.command == "wfp-evidence-review":
+            from .wfp_evidence import load_evidence, evaluate_evidence
+            print(json.dumps(evaluate_evidence(load_evidence(args.file)),
+                             ensure_ascii=False, sort_keys=True))
         elif args.command in ("secret-set", "secret-delete"):
             if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", args.name):
                 raise GuardError("Alias inválido.")

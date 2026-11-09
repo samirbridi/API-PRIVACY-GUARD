@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "mode": "preview_only",
+  "rules": [
+    {
+      "id": "example-public-review-only",
+      "executable": "C:\\Program Files\\ExampleIDE\\agent.exe",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "protocol": "tcp",
+      "remote_ip": "8.8.8.8",
+      "remote_port": 443
+    }
+  ]
+}

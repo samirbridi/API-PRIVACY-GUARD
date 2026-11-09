@@ -35,6 +35,10 @@ def main() -> None:
     p.add_argument("--policy", required=True, help="Arquivo local JSON de regras de simulação")
     p.add_argument("--no-children", action="store_true", help="Não incluir subprocessos")
     p.add_argument("--show-ip", action="store_true", help="Exibir IPs remotos somente localmente")
+    p = sp.add_parser("wfp-hash", help="SHA-256 local de executável Windows (não aplica firewall)")
+    p.add_argument("--exe", required=True, help="Caminho absoluto de arquivo .exe")
+    p = sp.add_parser("wfp-preview", help="Prévia WFP SEM criar filtros")
+    p.add_argument("--proposal", required=True, help="Proposta JSON local")
     args = parser.parse_args()
     try:
         if args.command == "init":
@@ -71,6 +75,12 @@ def main() -> None:
             )
             result = evaluate_snapshot(snapshot, policy, show_ip=args.show_ip)
             print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+        elif args.command == "wfp-hash":
+            from .wfp_preflight import fingerprint
+            print(json.dumps(fingerprint(args.exe), ensure_ascii=False, sort_keys=True))
+        elif args.command == "wfp-preview":
+            from .wfp_preflight import load, preview
+            print(json.dumps(preview(load(args.proposal)), ensure_ascii=False, sort_keys=True))
         elif args.command in ("secret-set", "secret-delete"):
             if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", args.name):
                 raise GuardError("Alias inválido.")

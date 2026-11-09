@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "default_action": "review",
+  "rules": [
+    {
+      "id": "example-local-gateway",
+      "action": "allow_candidate",
+      "process_names": [
+        "python.exe"
+      ],
+      "protocols": [
+        "tcp"
+      ],
+      "remote_ports": [
+        8765
+      ],
+      "remote_scopes": [
+        "loopback"
+      ],
+      "remote_cidrs": []
+    },
+    {
+      "id": "example-ssh-private",
+      "action": "allow_candidate",
+      "process_names": [
+        "ssh.exe"
+      ],
+      "protocols": [
+        "tcp"
+      ],
+      "remote_ports": [
+        22
+      ],
+      "remote_scopes": [
+        "private_or_reserved"
+      ],
+      "remote_cidrs": []
+    }
+  ]
+}

@@ -103,3 +103,28 @@ def test_native_source_has_all_scope_guards_and_dynamic_cleanup():
         assert signature in source
     assert "FWPM_FILTER_FLAG_PERSISTENT" not in source
     assert "FWPM_FILTER_FLAG_BOOTTIME" not in source
+
+
+def test_helper_exposes_runtime_id_and_checked_session_close():
+    source = (Path(__file__).resolve().parents[1] / "native" / "wfp_lab_block.cpp").read_text(encoding="utf-8")
+    assert "FwpmFilterAdd0(engine.handle, &filter, nullptr, &filter_id)" in source
+    assert "APG_FILTER_ID=" in source
+    assert 'check(FwpmEngineClose0(engine.handle), "FwpmEngineClose0")' in source
+    assert source.index("check(FwpmEngineClose0(engine.handle)") < source.index("APG_SESSION_CLOSED=true")
+
+
+def test_probe_is_read_only_and_errors_are_not_absence():
+    source = (Path(__file__).resolve().parents[1] / "native" / "wfp_lab_probe.cpp").read_text(encoding="utf-8")
+    assert "FwpmFilterGetById0" in source
+    assert "FwpmFreeMemory0" in source
+    assert "FWP_E_FILTER_NOT_FOUND" in source
+    assert "APG_FILTER_QUERY_ERROR=" in source
+    for forbidden in ("FwpmFilterAdd0", "FwpmFilterDeleteById0", "FwpmSubLayerAdd0", "FwpmTransactionBegin0"):
+        assert forbidden not in source
+
+
+def test_ci_compiles_probe_without_running_it():
+    workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "wfp-lab-compile.yml").read_text(encoding="utf-8")
+    assert r"native\wfp_lab_probe.cpp" in workflow
+    assert "apg_wfp_lab_probe.exe" in workflow
+    assert "Neither executable is executed" in workflow

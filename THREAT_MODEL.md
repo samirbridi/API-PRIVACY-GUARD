@@ -54,3 +54,7 @@ A fase 2 apenas interpreta snapshots locais. Nomes e PIDs de processos podem ser
 ## WFP preflight (fase 3A)
 
 Identidade por caminho e hash é verificada apenas no instante da proposta, não vincula de forma imutável o processo e não bloqueia subprocessos ou conexões. IPs podem representar serviços compartilhados. O preflight não intercepta dados HTTPS nem altera a rede. Nenhuma garantia de enforcement é feita nesta fase.
+
+## Limite do diagnóstico WFP nativo — Fase 3B
+
+O diagnóstico WFP consulta a identidade nativa de um executável em uma sessão dinâmica temporária. O AppID integral não é retornado e nenhuma operação de criação de filtros é disponibilizada. **Essa consulta não impede vazamentos.** O futuro controle de saída exigirá filtros por executável/IPv4/IPv6, testes de precedência, isolamento de subprocessos e validação de rollback em Windows reais.

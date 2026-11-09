@@ -38,3 +38,7 @@ O comando `network-plan` compara amostras locais com regras estritas, apresenta 
 ## Network Guard — fase 3A
 
 Protótipo WFP preview-only: política explicitamente restrita a executável, hash SHA-256, IP público único, porta e protocolo. **Nenhum filtro é aplicado**; fase 3B deverá construir backend nativo de sessão dinâmica, autorização explícita, rollback e testes Windows em VM. Consulte docs/NETWORK-GUARD-PHASE3-WFP-PREFLIGHT.md.
+
+## Fase 3B — diagnóstico WFP nativo
+
+O comando `wfp-native-diagnose` consulta a identidade do executável via `fwpuclnt.dll`, abrindo e encerrando uma sessão dinâmica vazia. **Ainda não há enforcement**, e o teste automatizado é simulado. Antes de adicionar filtros temporários, são obrigatórios testes reais no Windows, revisão de privilégio, escopo e rollback. [Plano da fase 3B](docs/NETWORK-GUARD-PHASE3B-NATIVE-DIAGNOSTICS.md).

@@ -12,10 +12,13 @@
 #include <string>
 #include <stdexcept>
 #include <cwchar>
+#include <wincrypt.h>
+#include <array>
 
 #pragma comment(lib, "fwpuclnt.lib")
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "ole32.lib")
+#pragma comment(lib, "advapi32.lib")
 
 static void check(DWORD rc, const char* operation) {
     if (rc) throw std::runtime_error(std::string(operation) + " WFP error " + std::to_string(rc));
@@ -48,14 +51,91 @@ struct AppId {
     AppId& operator=(const AppId&) = delete;
 };
 
+struct ReadonlyExecutable {
+    HANDLE file = INVALID_HANDLE_VALUE;
+    explicit ReadonlyExecutable(const std::wstring& path) {
+        // No write/delete sharing; hold the handle until AFTER the WFP session ends.
+        file = CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr,
+                           OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_SEQUENTIAL_SCAN,
+                           nullptr);
+        if (file == INVALID_HANDLE_VALUE)
+            throw std::runtime_error("Cannot lock executable for local SHA-256 validation");
+        BY_HANDLE_FILE_INFORMATION info{};
+        if (!GetFileInformationByHandle(file, &info) ||
+            (info.dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT)) ||
+            info.nNumberOfLinks != 1)
+            throw std::runtime_error("Executable reparse point, link or file metadata refused");
+        LARGE_INTEGER size{};
+        if (!GetFileSizeEx(file, &size) || size.QuadPart <= 0 ||
+            size.QuadPart > 256LL * 1024 * 1024)
+            throw std::runtime_error("Executable size invalid for lab");
+        std::wstring actual(32768, L'\0');
+        DWORD length = GetFinalPathNameByHandleW(file, actual.data(),
+                         static_cast<DWORD>(actual.size()), FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
+        if (!length || length >= actual.size())
+            throw std::runtime_error("Could not resolve opened executable");
+        actual.resize(length);
+        if (actual.rfind(L"\\\\?\\", 0) == 0) actual.erase(0, 4);
+        if (_wcsicmp(actual.c_str(), path.c_str()) != 0)
+            throw std::runtime_error("Resolved executable does not match the approved path");
+    }
+    ~ReadonlyExecutable() {
+        if (file != INVALID_HANDLE_VALUE) CloseHandle(file);
+    }
+    ReadonlyExecutable(const ReadonlyExecutable&) = delete;
+    ReadonlyExecutable& operator=(const ReadonlyExecutable&) = delete;
+};
+
+struct CryptoProvider {
+    HCRYPTPROV handle = 0;
+    ~CryptoProvider() { if (handle) CryptReleaseContext(handle, 0); }
+};
+struct CryptoHash {
+    HCRYPTHASH handle = 0;
+    ~CryptoHash() { if (handle) CryptDestroyHash(handle); }
+};
+
+static std::wstring sha256_open_file(HANDLE file) {
+    CryptoProvider provider;
+    if (!CryptAcquireContextW(&provider.handle, nullptr, nullptr,
+                              PROV_RSA_AES, CRYPT_VERIFYCONTEXT))
+        throw std::runtime_error("SHA-256 provider unavailable");
+    CryptoHash hash;
+    if (!CryptCreateHash(provider.handle, CALG_SHA_256, 0, 0, &hash.handle))
+        throw std::runtime_error("SHA-256 initialization failed");
+    std::array<BYTE, 65536> buffer{};
+    DWORD count = 0;
+    for (;;) {
+        if (!ReadFile(file, buffer.data(), static_cast<DWORD>(buffer.size()), &count, nullptr))
+            throw std::runtime_error("SHA-256 file read failed");
+        if (count == 0) break;
+        if (!CryptHashData(hash.handle, buffer.data(), count, 0))
+            throw std::runtime_error("SHA-256 update failed");
+    }
+    std::array<BYTE, 32> digest{};
+    DWORD size = static_cast<DWORD>(digest.size());
+    if (!CryptGetHashParam(hash.handle, HP_HASHVAL, digest.data(), &size, 0) ||
+        size != digest.size())
+        throw std::runtime_error("SHA-256 finalization failed");
+    static constexpr wchar_t digits[] = L"0123456789abcdef";
+    std::wstring hex;
+    hex.reserve(64);
+    for (BYTE b : digest) {
+        hex.push_back(digits[b >> 4]);
+        hex.push_back(digits[b & 0x0F]);
+    }
+    return hex;
+}
+
 int wmain(int argc, wchar_t** argv) {
     try {
-        if (argc != 14 || std::wcscmp(argv[1], L"--lab-block") ||
-            std::wcscmp(argv[2], L"--exe") || std::wcscmp(argv[4], L"--ip") ||
-            std::wcscmp(argv[6], L"--port") || std::wcscmp(argv[8], L"--protocol") ||
-            std::wcscmp(argv[10], L"--seconds") || std::wcscmp(argv[12], L"--confirm") ||
-            std::wcscmp(argv[13], L"LAB-ONLY-EPHEMERAL-BLOCK")) {
-            std::wcerr << L"Requires --lab-block --exe PATH --ip IPv4 --port PORT"
+        if (argc != 16 || std::wcscmp(argv[1], L"--lab-block") ||
+            std::wcscmp(argv[2], L"--exe") || std::wcscmp(argv[4], L"--sha256") ||
+            std::wcscmp(argv[6], L"--ip") || std::wcscmp(argv[8], L"--port") ||
+            std::wcscmp(argv[10], L"--protocol") || std::wcscmp(argv[12], L"--seconds") ||
+            std::wcscmp(argv[14], L"--confirm") ||
+            std::wcscmp(argv[15], L"LAB-ONLY-EPHEMERAL-BLOCK")) {
+            std::wcerr << L"Requires --lab-block --exe PATH --sha256 HASH --ip IPv4 --port PORT"
                        << L" --protocol tcp|udp --seconds 5..30"
                        << L" --confirm LAB-ONLY-EPHEMERAL-BLOCK\n";
             return 2;
@@ -85,22 +165,35 @@ int wmain(int argc, wchar_t** argv) {
         if (!length || length >= fullpath.size() || _wcsicmp(fullpath.c_str(), exe.c_str()))
             throw std::runtime_error("Non-canonical executable path");
 
+        std::wstring expected_hash(argv[5]);
+        if (expected_hash.size() != 64) throw std::runtime_error("SHA-256 pin required");
+        for (wchar_t digit : expected_hash)
+            if (!((digit >= L'0' && digit <= L'9') ||
+                  (digit >= L'a' && digit <= L'f')))
+                throw std::runtime_error("SHA-256 must be lower-case hexadecimal");
+
         IN_ADDR addr{};
-        if (InetPtonW(AF_INET, argv[5], &addr) != 1)
+        if (InetPtonW(AF_INET, argv[7], &addr) != 1)
             throw std::runtime_error("Numeric IPv4 only");
         UINT32 host_ip = ntohl(addr.S_un.S_addr); // WFP FWP_UINT32 requires host byte order.
         if (!public_ipv4(host_ip))
             throw std::runtime_error("Non-public destination refused");
         wchar_t* endp = nullptr;
-        unsigned long port = std::wcstoul(argv[7], &endp, 10);
-        if (!argv[7][0] || *endp || port < 1 || port > 65535)
+        unsigned long port = std::wcstoul(argv[9], &endp, 10);
+        if (!argv[9][0] || *endp || port < 1 || port > 65535)
             throw std::runtime_error("Port invalid");
-        unsigned long seconds = std::wcstoul(argv[11], &endp, 10);
-        if (!argv[11][0] || *endp || seconds < 5 || seconds > 30)
+        unsigned long seconds = std::wcstoul(argv[13], &endp, 10);
+        if (!argv[13][0] || *endp || seconds < 5 || seconds > 30)
             throw std::runtime_error("Duration outside 5..30 seconds");
-        bool tcp = std::wcscmp(argv[9], L"tcp") == 0;
-        bool udp = std::wcscmp(argv[9], L"udp") == 0;
+        bool tcp = std::wcscmp(argv[11], L"tcp") == 0;
+        bool udp = std::wcscmp(argv[11], L"udp") == 0;
         if (!tcp && !udp) throw std::runtime_error("Protocol must be tcp or udp");
+
+        // Re-check the operator-approved digest in the native helper, not just
+        // in Python. Keep a restrictive file handle open until the session ends.
+        ReadonlyExecutable target(exe);
+        if (sha256_open_file(target.file) != expected_hash)
+            throw std::runtime_error("Executable SHA-256 differs from approved pin");
 
         Engine engine;
         FWPM_SESSION0 session{};

@@ -66,3 +66,7 @@ O helper nativo agora contém um filtro WFP real, mas é manual e exige confirma
 ## Risco residual na verificação de rollback WFP
 
 O novo probe permite diferenciar a ausência de um objeto de filtro de erro de consulta WFP. Isso não comprova efeitos reais da filtragem ou cobertura de processos filhos, VPN, IPv6 e tráfego HTTPS. A confirmação de VM é declarativa, não uma verificação de isolamento. Teste vivo segue pendente.
+
+## Fase 3D — verificação nativa SHA-256 do alvo
+
+O helper de laboratório agora exige um hash SHA-256 explícito e recalcula o digest local do executável antes de instalar o filtro, conservando o handle aberto com compartilhamento restrito. Isso reduz o risco de troca entre planejamento e execução, mas não fornece prova imutável de identidade do processo, não impede alterações por identidades privilegiadas nem cria um firewall abrangente. A execução permanece manual e confinada a VM de laboratório.

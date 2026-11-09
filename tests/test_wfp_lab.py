@@ -128,3 +128,32 @@ def test_ci_compiles_probe_without_running_it():
     assert r"native\wfp_lab_probe.cpp" in workflow
     assert "apg_wfp_lab_probe.exe" in workflow
     assert "Neither executable is executed" in workflow
+
+
+def test_native_helper_receives_approved_sha256_pin():
+    plan_data = plan()
+    argv = plan_data["command_argv"]
+    assert argv[4:6] == ["--sha256", "a" * 64]
+    assert argv[6:8] == ["--ip", "8.8.8.8"]
+
+
+def test_native_hash_check_occurs_before_wfp_filter_setup():
+    source = (Path(__file__).resolve().parents[1] / "native" / "wfp_lab_block.cpp").read_text(encoding="utf-8")
+    assert 'std::wcscmp(argv[4], L"--sha256")' in source
+    assert 'std::wstring expected_hash(argv[5]);' in source
+    assert "ReadonlyExecutable target(exe);" in source
+    assert "sha256_open_file(target.file) != expected_hash" in source
+    assert source.index("sha256_open_file(target.file)") < source.index("FwpmEngineOpen0(")
+    assert source.index("sha256_open_file(target.file)") < source.index("FwpmFilterAdd0(")
+    assert "FILE_SHARE_READ" in source
+    assert "FILE_FLAG_OPEN_REPARSE_POINT" in source
+    assert "GetFinalPathNameByHandleW" in source
+    assert "CryptAcquireContextW" in source
+    assert "CryptCreateHash" in source
+    assert "CryptHashData" in source
+    assert "CryptGetHashParam" in source
+
+
+def test_native_build_links_cryptoapi():
+    workflow = (Path(__file__).resolve().parents[1] / ".github" / "workflows" / "wfp-lab-compile.yml").read_text(encoding="utf-8")
+    assert "advapi32.lib" in workflow

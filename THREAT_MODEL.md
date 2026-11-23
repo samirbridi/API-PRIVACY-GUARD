@@ -78,3 +78,7 @@ Análise apenas de registros estruturados preenchidos manualmente pelo operador.
 ## Fase 3F — isolamento de laboratório não é comprovado pelo IP
 
 O helper passou a recusar endereços públicos e aceitar somente IPv4 RFC1918, minimizando testes contra terceiros. A faixa privada não comprova a virtualização ou isolamento da rede; o operador precisa controlar VM, adaptadores e servidor de teste. O cliente TCP não envia dados de aplicação, mas realiza handshake de rede quando executado manualmente. Falha de conexão isolada não prova que WFP a bloqueou.
+
+## Fase 4A — limites do Network Watch
+
+Amostragem de sockets visíveis de PID e descendentes, com IPs retidos somente em memória e ocultos da saída por padrão. Conexões fugazes, tráfego delegado, processos fora da árvore, DNS/DoH, VPNs, proxies e permissões do sistema podem escapar. A verificação PID+instante de criação reduz uma confusão sobre a identidade da raiz, mas não oferece identidade imutável para filhos. Não é DLP nem prova de tráfego ausente.

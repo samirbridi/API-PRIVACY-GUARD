@@ -58,3 +58,7 @@ Ferramenta local e sem acesso à rede para análise de evidências manuais de fi
 ## Fase 3F — ambiente experimental RFC1918
 
 Helper WFP e planejador limitados a IPv4 privado RFC1918 (exige VM e rede isolada de verdade); cliente TCP dedicado para testar novas conexões sem transmitir conteúdo; CI apenas compila os executáveis. Preview público preservado como simulação. **Ainda não existe validação de bloqueio real em VM.**
+
+## Fase 4A — Network Watch: amostras de processo
+
+Observação local finita por PID e árvore atual de filhos, comparação de destinos únicos, política de saída simulada e detecção de visibilidade incompleta ou PID reutilizado. Zero conexões não significa zero vazamento. A Issue #4 continua aberta para mapear rotas fora da árvore e validar isolamento real.
